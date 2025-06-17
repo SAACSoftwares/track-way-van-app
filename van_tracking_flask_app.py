@@ -99,6 +99,7 @@ def log_trip():
             details["seat_capacity"], now, "", odo, "", ""
         ])
         wb.save(excel_path)
+        send_file_to_admin(excel_path, "Trip Log Update", f"Updated trip log for van {van_id}.")
         return jsonify({"message": "✅ Departure logged successfully"})
 
     elif stage == "arrival":
@@ -112,6 +113,7 @@ def log_trip():
                 except:
                     row[9].value = ""
                 wb.save(excel_path)
+                send_file_to_admin(excel_path, "Trip Log Update", f"Updated trip log for van {van_id}.")
                 return jsonify({"message": "✅ Arrival logged successfully"})
         return jsonify({"error": "No matching departure found"}), 400
 
@@ -167,6 +169,7 @@ def submit_attendance():
                 break
 
     wb.save(path)
+    send_file_to_admin(path, "Attendance Sheet Update", f"Updated attendance for van {van_id}.")
     return jsonify({"message": "✅ Attendance saved!"})
 
 # === View Trip Logs in Table Format ===
@@ -338,7 +341,34 @@ def forgot_password():
         return jsonify({"success": True, "message": "✅ Password reset successfully."})
     except:
         return jsonify({"success": False, "error": "Error updating password."}), 500
+@app.route("/update_admin_email", methods=["POST"])
+def update_admin_email():
+    data = request.get_json()
+    new_email = data.get("email", "").strip()
 
+    if not new_email or "@" not in new_email:
+        return jsonify({"error": "Invalid email"}), 400
+
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+    except:
+        config = {}
+
+    config["email"] = new_email
+
+    with open("config.json", "w") as f:
+        json.dump(config, f, indent=2)
+
+    return jsonify({"message": "✅ Admin email updated successfully."})
+@app.route("/get_admin_email", methods=["GET"])
+def get_admin_email():
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+        return jsonify({"email": config.get("email", "")})
+    except:
+        return jsonify({"email": ""})
 # === Add Van Entry ===
 @app.route("/add_van", methods=["POST"])
 def add_van():
@@ -475,8 +505,46 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OTP_STORE = {}  # {email: otp}
+ADMIN_EMAIL_OTP_STORE = {}
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")  # for SMTP login
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
+def send_file_to_admin(filepath, subject, body):
+    if not os.path.exists(filepath):
+        print("❌ File not found:", filepath)
+        return
+
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+        to_email = config.get("email", ADMIN_EMAIL)
+    except:
+        to_email = ADMIN_EMAIL
+
+    msg = MIMEMultipart()
+    msg["From"] = ADMIN_EMAIL
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    with open(filepath, "rb") as file:
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(file.read())
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition", f'attachment; filename="{os.path.basename(filepath)}"')
+        msg.attach(part)
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+            smtp.starttls()
+            smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
+            smtp.send_message(msg)
+        print(f"📤 Sent {os.path.basename(filepath)} to {to_email}")
+    except Exception as e:
+        print(f"❌ Email send failed: {str(e)}")
 
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
@@ -520,6 +588,54 @@ def reset_password():
         return jsonify({"success": True, "message": "✅ Password updated successfully."})
     else:
         return jsonify({"error": "Invalid OTP or email"}), 400
+    
+
+@app.route("/send_admin_email_otp", methods=["POST"])
+def send_admin_email_otp():
+    data = request.get_json()
+    email = data.get("email", "").strip()
+    if "@" not in email:
+        return jsonify({"success": False, "error": "Invalid email"}), 400
+
+    otp = str(random.randint(100000, 999999))
+    ADMIN_EMAIL_OTP_STORE[email] = otp
+
+    msg = MIMEText(f"Your OTP to confirm admin email is: {otp}")
+    msg["Subject"] = "Track Way - Confirm Admin Email"
+    msg["From"] = ADMIN_EMAIL
+    msg["To"] = email
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+            smtp.starttls()
+            smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
+            smtp.send_message(msg)
+        return jsonify({"success": True, "message": "✅ OTP sent to new email."})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to send OTP: {str(e)}"}), 500
+
+@app.route("/verify_admin_email_otp", methods=["POST"])
+def verify_admin_email_otp():
+    data = request.get_json()
+    email = data.get("email", "").strip()
+    otp = data.get("otp", "").strip()
+
+    if ADMIN_EMAIL_OTP_STORE.get(email) == otp:
+        try:
+            with open("config.json", "r") as f:
+                config = json.load(f)
+        except:
+            config = {}
+
+        config["email"] = email
+        with open("config.json", "w") as f:
+            json.dump(config, f, indent=2)
+
+        ADMIN_EMAIL_OTP_STORE.pop(email, None)
+        return jsonify({"success": True, "message": "✅ Admin email updated!"})
+    else:
+        return jsonify({"success": False, "error": "Incorrect OTP"}), 400
+
 
 @app.route("/healthz")
 def health_check():

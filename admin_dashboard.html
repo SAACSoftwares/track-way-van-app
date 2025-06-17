@@ -85,6 +85,8 @@
     </div>
     <nav><a href="admin_login.html" class="active">Admin</a></nav>
     <nav><a href="change_password.html">Change Password</a></nav>
+    <nav><a href="admin_email.html">Admin Email</a></nav>
+    <nav><a href="#" onclick="showTab('email_update_section', event)">Admin Email</a></nav>
   </header>
 
   <main>
@@ -100,6 +102,22 @@
       <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
       <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
     </div>
+    <!-- Admin Email Section -->
+<section class="form-section admin-section" id="email_update_section" style="display: none;">
+  <div class="form-box">
+    <h3>Update Admin Email</h3>
+    <label>New Email Address:</label>
+    <input type="email" id="admin_email_input" class="input-box" />
+    <button onclick="sendOtpToEmail()">Send OTP</button>
+
+    <div id="otp_section" style="display: none;">
+      <label>Enter OTP:</label>
+      <input type="text" id="admin_otp_input" class="input-box" />
+      <button onclick="verifyOtpAndSaveEmail()">Verify & Update Email</button>
+    </div>
+    <p id="email_update_status"></p>
+  </div>
+</section>
 
     <section class="form-section admin-section active" id="vans">
       <div class="form-box">
@@ -360,6 +378,42 @@
         window.location.href = "admin_login.html";
       }
     }
+    function sendOtpToEmail() {
+  const email = document.getElementById("admin_email_input").value.trim();
+  if (!email.includes("@")) return alert("Enter a valid email");
+
+  fetch("/send_admin_email_otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("email_update_status").innerText = data.message || data.error;
+    if (data.success) {
+      document.getElementById("otp_section").style.display = "block";
+    }
+  });
+}
+
+function verifyOtpAndSaveEmail() {
+  const email = document.getElementById("admin_email_input").value.trim();
+  const otp = document.getElementById("admin_otp_input").value.trim();
+
+  fetch("/verify_admin_email_otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("email_update_status").innerText = data.message || data.error;
+    if (data.success) {
+      document.getElementById("otp_section").style.display = "none";
+    }
+  });
+}
+
   </script>
 </body>
 </html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Set Admin Email - Track Way</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">🚌 Track Way</div>
+    <nav>
+      <a href="admin_dashboard.html">Dashboard</a>
+      <a href="change_password.html">Change Password</a>
+    </nav>
+  </header>
+
+  <main class="form-section">
+    <div class="form-box">
+      <h3>Set Admin Email</h3>
+      <label>Enter New Admin Email:</label>
+      <input type="email" id="admin_email" class="input-box" />
+      <button onclick="sendOTP()">Send OTP</button>
+
+      <div id="otp_section" style="display:none; margin-top: 20px;">
+        <label>Enter OTP:</label>
+        <input type="text" id="otp" class="input-box" />
+        <button onclick="verifyOTP()">Verify & Save Email</button>
+      </div>
+
+      <p id="status_message"></p>
+      <a href="admin_dashboard.html" style="display:block; margin-top:20px; text-align:center;">← Back to Dashboard</a>
+    </div>
+  </main>
+
+  <script>
+    window.onload = () => {
+  fetch("/get_admin_email")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("admin_email").value = data.email || "";
+    });
+};
+
+    function sendOTP() {
+      const email = document.getElementById("admin_email").value;
+      fetch("/send_admin_email_otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status_message").innerText = data.message || data.error;
+        if (data.success !== false) {
+          document.getElementById("otp_section").classList.add("show");
+        }
+      });
+    }
+
+    function verifyOTP() {
+      const email = document.getElementById("admin_email").value;
+      const otp = document.getElementById("otp").value;
+      fetch("/verify_admin_email_otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status_message").innerText = data.message || data.error;
+      });
+    }
+  </script>
+</body>
+</html>

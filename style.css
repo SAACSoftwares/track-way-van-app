@@ -266,3 +266,14 @@ nav {
     margin-top: 0;
   }
 }
+#otp_section {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.4s ease;
+}
+
+#otp_section.show {
+  opacity: 1;
+  max-height: 200px; /* enough to show inputs/buttons */
+}
