@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance - Track Way</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .student-box {
+      margin-top: 20px;
+    }
+
+    .student-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+
+    .student-info {
+      flex: 1;
+    }
+
+    .status-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .status-buttons button {
+      padding: 6px 14px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .present { background-color: green; }
+    .absent { background-color: red; }
+    .unmarked { background-color: #aaa; }
+
+    #submitBtn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #status {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 15px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🚌 Track Way</div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="trip_logger.html">Trip Logger</a>
+      <a href="view_logs.html">View Logs</a>
+      <a href="attendance.html" class="active">Attendance</a>
+      <a href="attendance_viewer.html">Attendance Viewer</a>
+      <a href="admin_login.html">Admin</a>
+
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Student Attendance</h1>
+      <p>Enter the Van ID to mark attendance for today's trip.</p>
+    </section>
+
+    <section class="form-section">
+      <div class="form-box">
+        <label for="van_id">Van ID:</label>
+        <input type="text" id="van_id" class="input-box" placeholder="Enter Van ID" />
+
+        <button class="glow-button" onclick="loadStudents()">Load Students</button>
+
+        <div id="student-box" class="student-box"></div>
+
+        <button id="submitBtn" class="glow-button" onclick="submitAttendance()">Submit Attendance</button>
+        <p class="status" id="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SAAC Softwares. All rights reserved.</p>
+  </footer>
+  <footer style="text-align:center; padding: 15px 0; font-size: 14px; color: #666;">
+    Contact us: <a href="mailto:saacsoftwares@gmail.com">saacsoftwares@gmail.com</a>
+  </footer>
+
+  <script>
+    let attendanceRecords = [];
+
+    function loadStudents() {
+      const van_id = document.getElementById("van_id").value.trim().toUpperCase();
+      if (!van_id) return alert("Please enter a van ID");
+
+      fetch(`http://192.168.29.233:5000/get_students?van_id=${van_id}`)
+        .then(res => res.json())
+        .then(data => {
+          const box = document.getElementById("student-box");
+          box.innerHTML = "";
+          attendanceRecords = [];
+
+          if (data.error) {
+            document.getElementById("status").innerText = data.error;
+            return;
+          }
+
+          data.forEach(student => {
+            const row = document.createElement("div");
+            row.className = "student-entry";
+
+            const info = document.createElement("div");
+            info.className = "student-info";
+            info.innerText = `${student.sno}. ${student.name} (${student.class}) - ${student.address} | ${student.parent_contact}`;
+
+            const buttons = document.createElement("div");
+            buttons.className = "status-buttons";
+
+            const btnP = document.createElement("button");
+            btnP.innerText = "P";
+            btnP.className = "unmarked";
+            btnP.onclick = () => mark(student.sno, "P", btnP, btnA);
+
+            const btnA = document.createElement("button");
+            btnA.innerText = "A";
+            btnA.className = "unmarked";
+            btnA.onclick = () => mark(student.sno, "A", btnP, btnA);
+
+            buttons.appendChild(btnP);
+            buttons.appendChild(btnA);
+
+            row.appendChild(info);
+            row.appendChild(buttons);
+            box.appendChild(row);
+          });
+        });
+    }
+
+    function mark(sno, status, btnP, btnA) {
+      btnP.className = "unmarked";
+      btnA.className = "unmarked";
+      if (status === "P") btnP.className = "present";
+      else btnA.className = "absent";
+
+      const i = attendanceRecords.findIndex(r => r.sno === sno);
+      if (i >= 0) attendanceRecords[i].status = status;
+      else attendanceRecords.push({ sno, status });
+    }
+
+    function submitAttendance() {
+      const van_id = document.getElementById("van_id").value.trim().toUpperCase();
+      if (!van_id || attendanceRecords.length === 0) return;
+
+      fetch("http://192.168.29.233:5000/submit_attendance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ van_id, records: attendanceRecords })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status").innerText = data.message || data.error;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+/* General Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Header */
+header {
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+.logo {
+  font-size: 26px;
+  font-weight: 700;
+  color: #232a31;
+  letter-spacing: 1px;
+  animation: breathe 3s ease-in-out infinite;
+  transition: transform 0.3s ease, color 0.3s;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 10px;
+}
+
+.logo:hover {
+  color: #007bff;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+}
+
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+}
+nav a::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  left: 0;
+  bottom: -3px;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+nav a:hover::after,
+nav a.active::after {
+  width: 100%;
+}
+nav a:hover,
+nav a.active {
+  color: #007bff;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 60px 20px 30px;
+  animation: float 4s ease-in-out infinite;
+}
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+.hero p {
+  font-size: 18px;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+/* Cards Section */
+.cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 25px;
+  width: 280px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: #333;
+}
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+.card h2 {
+  margin-bottom: 10px;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #999;
+  transition: color 0.3s ease;
+}
+
+/* Form Section */
+.form-section {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.form-box {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+.form-box:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.form-box label {
+  margin-top: 10px;
+  display: block;
+  font-weight: bold;
+}
+.form-box input, .form-box select, .form-box button {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+/* Floating animation for hero section */
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Button Styles */
+.login-button,
+.glow-button {
+  background-color: #fff;
+  color: #000;
+  padding: 10px 24px;
+  border: 2px solid #000;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: box-shadow 0.4s ease, transform 0.3s ease, background 0.3s ease;
+}
+
+.login-button:hover,
+.glow-button:hover {
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.7), 0 0 20px rgba(0, 123, 255, 0.5);
+  transform: translateY(-2px);
+  cursor: pointer;
+  background: #eaf5ff;
+}
+
+/* Inputs */
+.input-box {
+  border: 2px solid #000;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.input-box:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0,123,255,0.4);
+}
+
+/* Responsive Elements */
+body, input, button {
+  font-size: 16px;
+}
+
+header {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-box {
+  width: 90%;
+  margin: 20px auto;
+}
+
+.form-box table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+/* Admin Tabs Responsive */
+.admin-tabs {
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 600px) {
+  .admin-tabs {
+    flex-direction: row;
+  }
+
+  .form-box {
+    max-width: 500px;
+  }
+
+  header {
+    flex-direction: row;
+    align-items: center;
+    padding: 20px 40px;
+  }
+
+  nav {
+    margin-top: 0;
+  }
+}

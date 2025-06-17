@@ -1,0 +1,96 @@
+<!-- admin_login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login - Track Way</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body>
+  <header>
+    <div class="logo">🚌 Track Way</div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="trip_logger.html">Trip Logger</a>
+      <a href="view_logs.html">View Logs</a>
+      <a href="attendance.html">Attendance</a>
+      <a href="attendance_viewer.html">Attendance Viewer</a>
+      <a href="admin_login.html" class="active">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Admin Login</h1>
+      <p>Only authorized personnel may proceed.</p>
+    </section>
+
+    <section class="form-section">
+      <div class="form-box">
+        <label for="username">Username:</label>
+        <input type="text" id="username" class="input-box" placeholder="Enter admin username" />
+
+        <label for="password">Password:</label>
+<div style="position: relative;">
+  <input type="password" id="password" class="input-box" placeholder="Enter password" style="padding-right: 40px; width: 100%;" />
+  <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #666;"></i>
+</div>
+<p style="text-align: right; margin: 8px 0;">
+  <a href="forgot_password.html" style="font-size: 14px;">Forgot Password?</a>
+</p>
+
+        <button class="login-button" onclick="login()">Login</button>
+        <p id="status" style="text-align: center; color: red; font-weight: bold;"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SAAC Softwares. All rights reserved.</p>
+    <p style="text-align: center; font-size: 14px;">Contact: <a href="mailto:saacsoftwares@gmail.com">saacsoftwares@gmail.com</a></p>
+  </footer>
+
+  <script>
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      fetch("http://192.168.29.233:5000/admin_login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+            localStorage.setItem("isAdmin", "true");  // Set admin login flag
+          window.location.href = "admin_dashboard.html";
+        } else {
+          document.getElementById("status").innerText = data.message;
+        }
+      })
+      .catch(() => {
+        document.getElementById("status").innerText = "Server error. Try again.";
+      });
+    }
+  document.getElementById("togglePassword").addEventListener("click", function () {
+  const passwordInput = document.getElementById("password");
+  const icon = this;
+
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    icon.classList.remove("fa-eye");
+    icon.classList.add("fa-eye-slash");
+  } else {
+    passwordInput.type = "password";
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.add("fa-eye");
+  }
+});
+
+  </script>
+</body>
+</html>

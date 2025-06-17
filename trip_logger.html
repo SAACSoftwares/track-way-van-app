@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trip Logger</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">🚌 Track Way</div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="trip_logger.html" class="active">Trip Logger</a>
+      <a href="view_logs.html">View Logs</a>
+      <a href="attendance.html">Attendance</a>
+      <a href="attendance_viewer.html">Attendance Viewer</a>
+      <a href="admin_login.html">Admin</a>
+
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Log a Van Trip</h1>
+      <p>Enter van ID to fetch details and submit departure/arrival logs.</p>
+    </section>
+
+    <section class="form-section">
+      <div class="form-box">
+        <label for="van_id">Van ID:</label>
+        <input type="text" id="van_id" class="input-box" placeholder="e.g. KA32Z3635" />
+
+        <button class="glow-button" onclick="getVanDetails()">Get Van Details</button>
+
+        <div id="van_info" style="display: none; margin-top: 20px;">
+          <p><strong>Van Number:</strong> <span id="info_id"></span></p>
+          <p><strong>Driver Name:</strong> <span id="info_driver"></span></p>
+          <p><strong>Route:</strong> <span id="info_route"></span></p>
+          <p><strong>Contact:</strong> <span id="info_contact"></span></p>
+          <p><strong>Seat Capacity:</strong> <span id="info_seats"></span></p>
+          <p><strong>Time:</strong> <span id="info_time"></span></p>
+
+          <label for="stage">Trip Stage:</label>
+          <select id="stage" class="input-box">
+            <option value="departure">Departure</option>
+            <option value="arrival">Arrival</option>
+          </select>
+
+          <label for="odometer">Odometer Reading:</label>
+          <input type="number" id="odometer" class="input-box" placeholder="e.g. 12345" />
+
+          <button class="glow-button" onclick="submitLog()">Submit</button>
+
+          <p class="status" id="status" style="margin-top: 10px;"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SAAC Softwares. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function getVanDetails() {
+      const van_id = document.getElementById("van_id").value.trim().toUpperCase();
+      fetch(`http://192.168.29.233:5000/get_van_details?van_id=${van_id}`)  // if accessing from phone
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            document.getElementById("status").innerText = "Van not found.";
+            document.getElementById("van_info").style.display = "none";
+          } else {
+            document.getElementById("info_id").innerText = data.van_id;
+            document.getElementById("info_driver").innerText = data.driver;
+            document.getElementById("info_route").innerText = data.route;
+            document.getElementById("info_contact").innerText = data.contact;
+            document.getElementById("info_seats").innerText = data.seat_capacity;
+            document.getElementById("info_time").innerText = data.time;
+            document.getElementById("van_info").style.display = "block";
+            document.getElementById("status").innerText = "";
+          }
+        });
+    }
+
+    function submitLog() {
+      const van_id = document.getElementById("van_id").value.trim().toUpperCase();
+      const stage = document.getElementById("stage").value;
+      const odometer = document.getElementById("odometer").value;
+
+      fetch(`http://192.168.29.233:5000/log_trip`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ van_id, stage, odometer })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          document.getElementById("status").innerText = data.message;
+          document.getElementById("odometer").value = "";
+        } else {
+          document.getElementById("status").innerText = data.error;
+        }
+      });
+    }
+  </script>
+  <footer style="text-align:center; padding: 15px 0; font-size: 14px; color: #666;">
+  Contact us: <a href="mailto:saacsoftwares@gmail.com">saacsoftwares@gmail.com</a>
+</footer>
+
+</body>
+</html>

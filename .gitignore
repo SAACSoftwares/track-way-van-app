@@ -1,0 +1,19 @@
+# ❌ Sensitive credentials and config
+.env
+config.json
+admin_password.json
+
+# ❌ Student and van data (local user records)
+students.json
+vans.json
+
+# ❌ Excel logs (attendance/trip files)
+*.xlsx
+
+# ❌ Python cache
+__pycache__/
+*.pyc
+
+# ❌ OS metadata (for macOS/Windows)
+.DS_Store
+Thumbs.db

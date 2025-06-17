@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Track Way</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .admin-tabs button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: 1px solid #007bff;
+      background: white;
+      color: #007bff;
+      border-radius: 5px;
+    }
+    .admin-tabs button.active {
+      background: #007bff;
+      color: white;
+    }
+    .admin-section {
+      display: none;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .admin-section.active {
+      display: flex;
+    }
+    .form-box {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .form-box input, .form-box select {
+      margin-top: 5px;
+      margin-bottom: 15px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .form-box button {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+.form-box button:hover {
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.7), 0 0 20px rgba(0, 123, 255, 0.5);
+  transform: translateY(-2px);
+  cursor: pointer;
+  background-color: #eaf5ff;
+}
+
+    .form-box h3 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .form-box p {
+      text-align: center;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <header style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+    <div>
+      <div class="logo">🚌 Track Way</div>
+      <a href="#" onclick="logout()" style="font-weight: bold; color: red; font-size: 14px; text-decoration: none; display: inline-block; margin-top: 5px;">Logout</a>
+    </div>
+    <nav><a href="admin_login.html" class="active">Admin</a></nav>
+    <nav><a href="change_password.html">Change Password</a></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Admin Dashboard</h1>
+      <p>Manage van and student data securely.</p>
+    </section>
+
+    <div class="admin-tabs">
+      <button class="glow-button active" onclick="showTab('vans', event)">Manage Vans</button>
+      <button class="glow-button" onclick="showTab('students', event)">Manage Students</button>
+      <button class="glow-button" onclick="showTab('van_list_section', event)">View/Edit Vans</button>
+      <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
+      <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
+    </div>
+
+    <section class="form-section admin-section active" id="vans">
+      <div class="form-box">
+        <h3>Add New Van</h3>
+        <label>Van ID:</label>
+        <input type="text" id="van_id" class="input-box" />
+        <label>Route:</label>
+        <input type="text" id="route" class="input-box" />
+        <label>Driver:</label>
+        <input type="text" id="driver" class="input-box" />
+        <label>Contact:</label>
+        <input type="text" id="contact" class="input-box" />
+        <label>Seat Capacity:</label>
+        <input type="number" id="seats" class="input-box" />
+        <button class="glow-button" onclick="submitVan()">Save Van</button>
+        <p id="van_status"></p>
+      </div>
+    </section>
+
+    <section class="form-section admin-section" id="students">
+      <div class="form-box">
+        <h3>Add Student to Van</h3>
+        <label>Van ID:</label>
+        <input type="text" id="s_van_id" class="input-box" />
+        <label>Name:</label>
+        <input type="text" id="s_name" class="input-box" />
+        <label>Class & Section:</label>
+        <input type="text" id="s_class" class="input-box" />
+        <label>Address:</label>
+        <input type="text" id="s_address" class="input-box" />
+        <label>Parent Contact:</label>
+        <input type="text" id="s_contact" class="input-box" />
+        <button class="glow-button" onclick="submitStudent()">Add Student</button>
+        <p id="student_status"></p>
+      </div>
+    </section>
+
+    <section class="form-section admin-section" id="van_list_section">
+      <div class="form-box" style="width: 100%; overflow-x: auto;">
+        <h3>All Vans</h3>
+        <table id="van_table" border="1" style="width:100%; border-collapse: collapse; text-align: center; margin-top: 20px;">
+          <thead>
+            <tr>
+              <th>Van ID</th>
+              <th>Route</th>
+              <th>Driver</th>
+              <th>Contact</th>
+              <th>Seats</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="form-section admin-section" id="student_list_section">
+      <div class="form-box" style="width: 100%; overflow-x: auto;">
+        <h3>All Students</h3>
+        <label>Van ID:</label>
+        <input type="text" id="student_van_id" class="input-box" />
+        <button onclick="loadStudentsTable()">Load Students</button>
+        <table id="student_table" border="1" style="width:100%; border-collapse: collapse; text-align: center; margin-top: 20px;">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Address</th>
+              <th>Parent Contact</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="form-section admin-section" id="attendance_view_section">
+      <div class="form-box" style="width: 100%; overflow-x: auto;">
+        <h3>View Attendance</h3>
+        <label>Van ID:</label>
+        <input type="text" id="att_van_id" class="input-box" />
+        <label>Month:</label>
+        <select id="att_month" class="input-box">
+          <option value="january">January</option><option value="february">February</option><option value="march">March</option>
+          <option value="april">April</option><option value="may">May</option><option value="june">June</option>
+          <option value="july">July</option><option value="august">August</option><option value="september">September</option>
+          <option value="october">October</option><option value="november">November</option><option value="december">December</option>
+        </select>
+        <label>Year:</label>
+        <input type="number" id="att_year" class="input-box" />
+        <button onclick="loadAttendanceAdmin()">View Attendance</button>
+        <div id="attendance_result_admin" style="margin-top: 20px;"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><p>&copy; 2025 SAAC Softwares. All rights reserved.</p></footer>
+
+  <script>
+    function showTab(tab, event) {
+      document.querySelectorAll(".admin-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".admin-tabs button").forEach(b => b.classList.remove("active"));
+      document.getElementById(tab).classList.add("active");
+      event.target.classList.add("active");
+      if (tab === "van_list_section") fetchVans();
+    }
+
+    function submitVan() {
+      const data = {
+        van_id: document.getElementById("van_id").value.trim().toUpperCase(),
+        route: document.getElementById("route").value.trim(),
+        driver: document.getElementById("driver").value.trim(),
+        contact: document.getElementById("contact").value.trim(),
+        seat_capacity: document.getElementById("seats").value.trim()
+      };
+      fetch("http://192.168.29.233:5000/add_van", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data)
+      }).then(res => res.json()).then(data => {
+        document.getElementById("van_status").innerText = data.message || data.error;
+      });
+    }
+
+    function submitStudent() {
+      const data = {
+        van_id: document.getElementById("s_van_id").value.trim().toUpperCase(),
+        name: document.getElementById("s_name").value.trim(),
+        class: document.getElementById("s_class").value.trim(),
+        address: document.getElementById("s_address").value.trim(),
+        parent_contact: document.getElementById("s_contact").value.trim()
+      };
+      fetch("http://192.168.29.233:5000/add_student", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data)
+      }).then(res => res.json()).then(data => {
+        document.getElementById("student_status").innerText = data.message || data.error;
+      });
+    }
+
+    function fetchVans() {
+      fetch("http://192.168.29.233:5000/get_all_vans").then(res => res.json()).then(data => {
+        const tbody = document.querySelector("#van_table tbody");
+        tbody.innerHTML = "";
+        Object.entries(data).forEach(([id, d]) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${id}</td>
+            <td contenteditable="true">${d.route}</td>
+            <td contenteditable="true">${d.driver}</td>
+            <td contenteditable="true">${d.contact}</td>
+            <td contenteditable="true">${d.seat_capacity}</td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <button class="glow-button" onclick="updateVan('${id}', this)">Save</button>
+                <button class="glow-button" onclick="deleteVan('${id}')">Delete</button>
+              </div>
+            </td>`;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    function updateVan(id, btn) {
+      const row = btn.closest("tr");
+      fetch("http://192.168.29.233:5000/update_van", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          van_id: id,
+          route: row.cells[1].innerText,
+          driver: row.cells[2].innerText,
+          contact: row.cells[3].innerText,
+          seat_capacity: row.cells[4].innerText
+        })
+      }).then(res => res.json()).then(data => alert(data.message || data.error));
+    }
+
+    function deleteVan(id) {
+      if (!confirm("Delete this van?")) return;
+      fetch("http://192.168.29.233:5000/delete_van", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ van_id: id })
+      }).then(res => res.json()).then(data => {
+        alert(data.message || data.error); fetchVans();
+      });
+    }
+
+    function loadStudentsTable() {
+      const vanId = document.getElementById("student_van_id").value.trim().toUpperCase();
+      if (!vanId) return alert("Enter Van ID");
+
+      fetch(`http://192.168.29.233:5000/get_students?van_id=${vanId}`)
+      .then(res => res.json()).then(data => {
+        const tbody = document.querySelector("#student_table tbody");
+        tbody.innerHTML = "";
+        if (data.error) return tbody.innerHTML = `<tr><td colspan="6">${data.error}</td></tr>`;
+        data.forEach((s) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${s.sno}</td>
+            <td contenteditable="true">${s.name}</td>
+            <td contenteditable="true">${s.class}</td>
+            <td contenteditable="true">${s.address}</td>
+            <td contenteditable="true">${s.parent_contact}</td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <button class="glow-button" onclick="updateStudent('${vanId}', ${s.sno}, this)">Save</button>
+                <button class="glow-button" onclick="deleteStudent('${vanId}', ${s.sno})">Delete</button>
+              </div>
+            </td>`;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    function updateStudent(vanId, sno, btn) {
+      const row = btn.closest("tr");
+      fetch("http://192.168.29.233:5000/update_student", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          van_id: vanId, sno: sno,
+          name: row.cells[1].innerText,
+          class: row.cells[2].innerText,
+          address: row.cells[3].innerText,
+          parent_contact: row.cells[4].innerText
+        })
+      }).then(res => res.json()).then(data => alert(data.message || data.error));
+    }
+
+    function deleteStudent(vanId, sno) {
+      if (!confirm("Delete student?")) return;
+      fetch("http://192.168.29.233:5000/delete_student", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ van_id: vanId, sno })
+      }).then(res => res.json()).then(data => {
+        alert(data.message || data.error); loadStudentsTable();
+      });
+    }
+
+    function loadAttendanceAdmin() {
+      const van_id = document.getElementById("att_van_id").value.trim().toUpperCase();
+      const month = document.getElementById("att_month").value;
+      const year = document.getElementById("att_year").value.trim();
+      if (!van_id || !year) return alert("Enter all fields");
+
+      fetch(`http://192.168.29.233:5000/view_attendance?van_id=${van_id}&month=${month}&year=${year}`)
+        .then(res => res.text()).then(data => {
+          document.getElementById("attendance_result_admin").innerHTML = data;
+        });
+    }
+
+    function logout() {
+      localStorage.removeItem("isAdmin");
+      window.location.href = "admin_login.html";
+    }
+
+    window.onload = function () {
+      if (!localStorage.getItem("isAdmin")) {
+        alert("Access denied. Please login as admin.");
+        window.location.href = "admin_login.html";
+      }
+    }
+  </script>
+</body>
+</html>
