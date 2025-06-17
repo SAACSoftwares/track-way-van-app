@@ -510,6 +510,9 @@ def reset_password():
     else:
         return jsonify({"error": "Invalid OTP or email"}), 400
 
+@app.route("/healthz")
+def health_check():
+    return "OK", 200
 
 
 
