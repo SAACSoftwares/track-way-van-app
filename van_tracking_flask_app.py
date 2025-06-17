@@ -7,8 +7,19 @@ from datetime import datetime
 from pathlib import Path
 import json, openpyxl
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='.')
 CORS(app)
+
+from flask import send_from_directory  # (if not already imported above)
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('.', filename)
+
 
 # Load van and student data
 VAN_DATA_FILE = "vans.json"
