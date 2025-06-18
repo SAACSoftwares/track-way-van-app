@@ -10,11 +10,12 @@ import json, openpyxl
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
-from flask import render_template  # (if not already imported above)
+from flask import render_template
 
 @app.route('/')
 def serve_index():
-    return render_template('.', 'index.html')
+    return render_template('index.html')
+
 
 
 # Load van and student data
