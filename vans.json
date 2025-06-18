@@ -1,0 +1,86 @@
+{
+  "KA32Z3635": {
+    "route": "R7",
+    "driver": "Xyz Kumar",
+    "contact": "1234567890",
+    "seat_capacity": 50
+  },
+  "KA32B5432": {
+    "route": "R3",
+    "driver": "Abc Singh",
+    "contact": "9998887776",
+    "seat_capacity": 40
+  },
+  "KA32B2345": {
+    "route": "R41",
+    "driver": "CDF kumar",
+    "contact": "1234567890",
+    "seat_capacity": "20"
+  },
+  "KA32Y7890": {
+    "route": "R33",
+    "driver": "EFG Reddy",
+    "contact": "1234567890",
+    "seat_capacity": "10"
+  },
+  "KA32X1709": {
+    "route": "R48",
+    "driver": "XYA Kapoor",
+    "contact": "1234567890",
+    "seat_capacity": "20"
+  },
+  "KA32F3525": {
+    "route": "R55",
+    "driver": "AEFF",
+    "contact": "1234567890",
+    "seat_capacity": "20"
+  },
+  "KA32E3635": {
+    "route": "E2",
+    "driver": "afasf",
+    "contact": "1234567890",
+    "seat_capacity": "20"
+  },
+  "KA32E2345": {
+    "route": "R1",
+    "driver": "afasf",
+    "contact": "1234567890",
+    "seat_capacity": "123"
+  },
+  "KA32F3635": {
+    "route": "E1",
+    "driver": "ADDFG",
+    "contact": "1234567890",
+    "seat_capacity": "100"
+  },
+  "KA32H3635": {
+    "route": "R3",
+    "driver": "asff",
+    "contact": "1234567890",
+    "seat_capacity": "1234"
+  },
+  "KA32V2222": {
+    "route": "E2",
+    "driver": "QQQQ",
+    "contact": "1234567890",
+    "seat_capacity": "222"
+  },
+  "KA32S3635": {
+    "route": "R67",
+    "driver": "XYA Kapoor",
+    "contact": "1234567890",
+    "seat_capacity": "23"
+  },
+  "KA32I1709": {
+    "route": "R53",
+    "driver": "wdf",
+    "contact": "333333333333",
+    "seat_capacity": "34"
+  },
+  "KA32A3635": {
+    "route": "E2",
+    "driver": "EFG Reddy",
+    "contact": "1234567890",
+    "seat_capacity": "22"
+  }
+}
