@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard - Track Way</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <style>
     .admin-tabs {
       display: flex;
@@ -83,9 +83,9 @@
       <div class="logo">🚌 Track Way</div>
       <a href="#" onclick="logout()" style="font-weight: bold; color: red; font-size: 14px; text-decoration: none; display: inline-block; margin-top: 5px;">Logout</a>
     </div>
-    <nav><a href="admin_login.html" class="active">Admin</a></nav>
-    <nav><a href="change_password.html">Change Password</a></nav>
-    <nav><a href="admin_email.html">Admin Email</a></nav>
+    <nav><a href="{{ url_for('admin_login') }}">Admin</a></nav>
+    <nav><a href="{{ url_for('change_password') }}">Change Password</a></nav>
+    <nav><a href="{{ url_for('admin_email') }}">Admin Email</a></nav>
     <nav><a href="#" onclick="showTab('email_update_section', event)">Admin Email</a></nav>
   </header>
 

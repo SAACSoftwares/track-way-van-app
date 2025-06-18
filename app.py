@@ -15,6 +15,47 @@ from flask import render_template
 @app.route('/')
 def serve_index():
     return render_template('index.html')
+from flask import render_template
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/trip_logger")
+def trip_logger():
+    return render_template("trip_logger.html")
+
+@app.route("/view_logs")
+def view_logs_page():
+    return render_template("view_logs.html")
+
+@app.route("/attendance")
+def attendance():
+    return render_template("attendance.html")
+
+@app.route("/attendance_viewer")
+def attendance_viewer():
+    return render_template("attendance_viewer.html")
+
+@app.route("/admin_login")
+def admin_login_page():
+    return render_template("admin_login.html")
+
+@app.route("/admin_dashboard")
+def admin_dashboard():
+    return render_template("admin_dashboard.html")
+
+@app.route("/change_password")
+def change_password_page():
+    return render_template("change_password.html")
+
+@app.route("/forgot_password")
+def forgot_password():
+    return render_template("forgot_password.html")
+
+@app.route("/admin_email")
+def admin_email():
+    return render_template("admin_email.html")
 
 
 

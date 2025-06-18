@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Attendance - Track Way</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <style>
     .student-box {
       margin-top: 20px;
@@ -64,12 +64,12 @@
   <header>
     <div class="logo">🚌 Track Way</div>
     <nav>
-      <a href="index.html">Dashboard</a>
-      <a href="trip_logger.html">Trip Logger</a>
-      <a href="view_logs.html">View Logs</a>
-      <a href="attendance.html" class="active">Attendance</a>
-      <a href="attendance_viewer.html">Attendance Viewer</a>
-      <a href="admin_login.html">Admin</a>
+      <a href="{{ url_for('index') }}">Dashboard</a>
+      <a href="{{ url_for('trip_logger') }}">Trip Logger</a>
+      <a href="{{ url_for('view_logs') }}">View Logs</a>
+      <a href="{{ url_for('attendance') }}">Attendance</a>
+      <a href="{{ url_for('attendance_viewer') }}">Attendance Viewer</a>
+      <a href="{{ url_for('admin_login') }}">Admin</a>
 
     </nav>
   </header>
