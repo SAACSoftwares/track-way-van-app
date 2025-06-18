@@ -48,9 +48,7 @@ def change_password_page():
 def forgot_password_page():
     return render_template("forgot_password.html")
 
-@app.route("/admin_email")
-def admin_email():
-    return render_template("admin_email.html")
+
 
 
 
