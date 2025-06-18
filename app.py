@@ -12,11 +12,6 @@ CORS(app)
 
 from flask import render_template
 
-@app.route('/')
-def serve_index():
-    return render_template('index.html')
-from flask import render_template
-
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -50,7 +45,7 @@ def change_password_page():
     return render_template("change_password.html")
 
 @app.route("/forgot_password")
-def forgot_password():
+def forgot_password_page():
     return render_template("forgot_password.html")
 
 @app.route("/admin_email")
