@@ -7,18 +7,14 @@ from datetime import datetime
 from pathlib import Path
 import json, openpyxl
 
-app = Flask(__name__, static_url_path='', static_folder='.')
+app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
-from flask import send_from_directory  # (if not already imported above)
+from flask import render_template  # (if not already imported above)
 
 @app.route('/')
 def serve_index():
-    return send_from_directory('.', 'index.html')
-
-@app.route('/<path:filename>')
-def serve_static(filename):
-    return send_from_directory('.', filename)
+    return render_template('.', 'index.html')
 
 
 # Load van and student data
@@ -642,9 +638,8 @@ def health_check():
     return "OK", 200
 
 
+import os
 
-
-# === Start Flask ===
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)
