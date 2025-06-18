@@ -130,7 +130,6 @@ def log_trip():
             details["seat_capacity"], now, "", odo, "", ""
         ])
         wb.save(excel_path)
-        send_file_to_admin(excel_path, "Trip Log Update", f"Updated trip log for van {van_id}.")
         return jsonify({"message": "✅ Departure logged successfully"})
 
     elif stage == "arrival":
@@ -144,9 +143,15 @@ def log_trip():
                 except:
                     row[9].value = ""
                 wb.save(excel_path)
-                send_file_to_admin(excel_path, "Trip Log Update", f"Updated trip log for van {van_id}.")
                 return jsonify({"message": "✅ Arrival logged successfully"})
         return jsonify({"error": "No matching departure found"}), 400
+@app.route("/send_daily_trip_log", methods=["POST"])
+def send_daily_trip_log():
+    filepath = get_excel_path()  # Gets this month’s trip log Excel
+    if filepath.exists():
+        send_file_to_admin(filepath, "🚌 Daily Trip Log", "Attached is the full trip log so far.")
+        return jsonify({"message": "✅ Daily trip log sent to admin email."})
+    return jsonify({"error": "Trip log file not found."}), 404
 
 # === API: Get Students for a Van ===
 @app.route("/get_students", methods=["GET"])
@@ -200,8 +205,24 @@ def submit_attendance():
                 break
 
     wb.save(path)
-    send_file_to_admin(path, "Attendance Sheet Update", f"Updated attendance for van {van_id}.")
     return jsonify({"message": "✅ Attendance saved!"})
+@app.route("/send_attendance_summary", methods=["POST"])
+def send_attendance_summary():
+    data = request.get_json()
+    van_id = data.get("van_id", "").strip().lower()
+    month = data.get("month", "").strip().lower()
+    year = data.get("year", "").strip()
+
+    if not van_id or not month or not year:
+        return jsonify({"error": "Missing van_id, month, or year"}), 400
+
+    filename = f"attendance_{van_id}_{month}_{year}.xlsx"
+    path = Path(filename)
+
+    if path.exists():
+        send_file_to_admin(path, f"📋 Attendance Summary for {van_id.upper()}", f"Attached is the attendance summary for {van_id.upper()} - {month.capitalize()} {year}.")
+        return jsonify({"message": "✅ Attendance summary sent via email."})
+    return jsonify({"error": "Attendance file not found"}), 404
 
 # === View Trip Logs in Table Format ===
 view_logs_template = """

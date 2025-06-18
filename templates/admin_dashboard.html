@@ -99,6 +99,7 @@
       <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
       <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
       <button class="glow-button" onclick="showTab('email_update_section', event)">Admin Email</button>
+      <button class="glow-button" onclick="showTab('summary_section', event)">Summary Reports</button>
     </div>
 
     <section class="form-section admin-section active" id="vans">
@@ -216,6 +217,36 @@
     <p id="email_update_status"></p>
   </div>
 </section>
+<section class="form-section admin-section" id="summary_section">
+  <div class="form-box">
+    <h3>📤 Send Summary Reports</h3>
+
+    <button onclick="sendTripLog()" class="glow-button">Send Daily Trip Log</button>
+
+    <hr style="margin: 20px 0;" />
+
+    <label>Van ID:</label>
+    <input type="text" id="sum_van_id" class="input-box" />
+
+    <label>Month:</label>
+    <select id="sum_month" class="input-box">
+      <option value="january">January</option><option value="february">February</option>
+      <option value="march">March</option><option value="april">April</option>
+      <option value="may">May</option><option value="june">June</option>
+      <option value="july">July</option><option value="august">August</option>
+      <option value="september">September</option><option value="october">October</option>
+      <option value="november">November</option><option value="december">December</option>
+    </select>
+
+    <label>Year:</label>
+    <input type="number" id="sum_year" class="input-box" />
+
+    <button onclick="sendAttendanceSummary()" class="glow-button">Send Attendance Summary</button>
+
+    <p id="summary_status"></p>
+  </div>
+</section>
+
   </main>
 
   <footer><p>&copy; 2025 SAAC Softwares. All rights reserved.</p></footer>
@@ -430,6 +461,34 @@
         window.location.href = "{{ url_for('admin_login_page') }}";
       }
     }
+    function sendTripLog() {
+  fetch("/send_daily_trip_log", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("summary_status").innerText = data.message || data.error;
+    });
+}
+
+function sendAttendanceSummary() {
+  const van_id = document.getElementById("sum_van_id").value.trim().toLowerCase();
+  const month = document.getElementById("sum_month").value;
+  const year = document.getElementById("sum_year").value.trim();
+
+  if (!van_id || !month || !year) {
+    return alert("Please fill in all fields.");
+  }
+
+  fetch("/send_attendance_summary", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ van_id, month, year })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("summary_status").innerText = data.message || data.error;
+  });
+}
+
   </script>
 </body>
 </html>
