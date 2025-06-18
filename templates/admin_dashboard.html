@@ -200,21 +200,22 @@
     </section>
 
     <section class="form-section admin-section" id="email_update_section">
-      <div class="form-box">
-        <h3>Update Admin Email</h3>
-        <label>New Email Address:</label>
-        <input type="email" id="admin_email_input" class="input-box" />
-        <button onclick="sendOtpToEmail()">Send OTP</button>
+  <div class="form-box">
+    <h3>Update Admin Email</h3>
+    <label>New Email Address:</label>
+    <input type="email" id="admin_email_input" class="input-box" />
+    <button onclick="sendOtpToEmail()">Send OTP</button>
 
-        <div id="otp_section" style="display: none; margin-top: 20px;">
-          <label>Enter OTP:</label>
-          <input type="text" id="admin_otp_input" class="input-box" />
-          <button onclick="verifyOtpAndSaveEmail()">Verify & Update Email</button>
-        </div>
+    <!-- ✅ OTP input block (initially hidden) -->
+    <div id="otp_section" style="display: none; margin-top: 20px;">
+      <label>Enter OTP:</label>
+      <input type="text" id="admin_otp_input" class="input-box" />
+      <button onclick="verifyOtpAndSaveEmail()">Verify & Update Email</button>
+    </div>
 
-        <p id="email_update_status"></p>
-      </div>
-    </section>
+    <p id="email_update_status"></p>
+  </div>
+</section>
   </main>
 
   <footer><p>&copy; 2025 SAAC Softwares. All rights reserved.</p></footer>
