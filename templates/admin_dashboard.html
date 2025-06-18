@@ -381,22 +381,26 @@
     }
 
     function sendOtpToEmail() {
-      const email = document.getElementById("admin_email_input").value.trim();
-      if (!email.includes("@")) return alert("Enter a valid email");
+  const email = document.getElementById("admin_email_input").value.trim();
+  if (!email.includes("@")) return alert("Enter a valid email");
 
-      fetch("/send_admin_email_otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("email_update_status").innerText = data.message || data.error;
-        if (data.success) {
-          document.getElementById("otp_section").style.display = "block";
-        }
-      });
+  fetch("/send_admin_email_otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("email_update_status").innerText = data.message || data.error;
+
+    if (data.success) {
+      // Ensure email tab is active and OTP box is shown
+      showTab("email_update_section");
+      document.getElementById("otp_section").style.display = "block";
     }
+  });
+}
+
 
     function verifyOtpAndSaveEmail() {
       const email = document.getElementById("admin_email_input").value.trim();
