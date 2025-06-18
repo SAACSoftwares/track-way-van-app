@@ -39,7 +39,7 @@
   <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #666;"></i>
 </div>
 <p style="text-align: right; margin: 8px 0;">
-  <a href="forgot_password.html" style="font-size: 14px;">Forgot Password?</a>
+  <a href="{{ url_for('forgot_password_page') }}" style="font-size: 14px;">Forgot Password?</a>
 </p>
 
         <button class="login-button" onclick="login()">Login</button>
@@ -67,7 +67,7 @@
       .then(data => {
         if (data.success) {
             localStorage.setItem("isAdmin", "true");  // Set admin login flag
-          window.location.href = "admin_dashboard.html";
+          window.location.href = "{{ url_for('admin_dashboard') }}";
         } else {
           document.getElementById("status").innerText = data.message;
         }
