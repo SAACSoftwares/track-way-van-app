@@ -145,13 +145,6 @@ def log_trip():
                 wb.save(excel_path)
                 return jsonify({"message": "✅ Arrival logged successfully"})
         return jsonify({"error": "No matching departure found"}), 400
-@app.route("/send_daily_trip_log", methods=["POST"])
-def send_daily_trip_log():
-    filepath = get_excel_path()  # Gets this month’s trip log Excel
-    if filepath.exists():
-        send_file_to_admin(filepath, "🚌 Daily Trip Log", "Attached is the full trip log so far.")
-        return jsonify({"message": "✅ Daily trip log sent to admin email."})
-    return jsonify({"error": "Trip log file not found."}), 404
 
 # === API: Get Students for a Van ===
 @app.route("/get_students", methods=["GET"])
