@@ -20,7 +20,7 @@ def home():
 def trip_logger():
     return render_template("trip_logger.html")
 
-@app.route("/view_logs")
+@app.route("/view_logs_page")
 def view_logs_page():
     return render_template("view_logs.html")
 
