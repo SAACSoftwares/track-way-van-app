@@ -85,7 +85,6 @@
     </div>
     <nav><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></nav>
     <nav><a href="{{ url_for('change_password_page') }}">Change Password</a></nav>
-    <nav><a href="#" onclick="showTab('email_update_section', event)">Admin Email</a></nav>
   </header>
 
   <main>
@@ -95,12 +94,14 @@
     </section>
 
     <div class="admin-tabs">
-      <button class="glow-button active" onclick="showTab('vans', event)">Manage Vans</button>
-      <button class="glow-button" onclick="showTab('students', event)">Manage Students</button>
-      <button class="glow-button" onclick="showTab('van_list_section', event)">View/Edit Vans</button>
-      <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
-      <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
-    </div>
+  <button class="glow-button active" onclick="showTab('vans', event)">Manage Vans</button>
+  <button class="glow-button" onclick="showTab('students', event)">Manage Students</button>
+  <button class="glow-button" onclick="showTab('van_list_section', event)">View/Edit Vans</button>
+  <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
+  <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
+  <button class="glow-button" onclick="showTab('email_update_section', event)">Admin Email</button>
+</div>
+
     <!-- Admin Email Section -->
 <section class="form-section admin-section" id="email_update_section" style="display: none;">
   <div class="form-box">
