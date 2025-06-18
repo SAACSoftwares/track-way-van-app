@@ -162,7 +162,6 @@ def get_students():
         return jsonify({"error": "No students found for this van."}), 404
     return jsonify(students)
 
-# === API: Submit Attendance ===
 @app.route("/submit_attendance", methods=["POST"])
 def submit_attendance():
     data = request.get_json()
@@ -172,8 +171,11 @@ def submit_attendance():
     if not van_id or not records:
         return jsonify({"error": "Invalid data"}), 400
 
-    today_str = datetime.now().strftime("%d-%b")
-    filename = f"attendance_{van_id.lower()}_{datetime.now().strftime('%B_%Y').lower()}.xlsx"
+    now = datetime.now()
+    today_str = now.strftime("%d-%b")
+    month = now.strftime("%B").lower()
+    year = now.strftime("%Y")
+    filename = f"attendance_{van_id.lower()}_{month}_{year}.xlsx"
     path = Path(filename)
 
     if not path.exists():
@@ -205,7 +207,9 @@ def submit_attendance():
                 break
 
     wb.save(path)
+    send_file_to_admin(path, "Attendance Sheet Update", f"Updated attendance for van {van_id}.")
     return jsonify({"message": "✅ Attendance saved!"})
+
 @app.route("/send_attendance_summary", methods=["POST"])
 def send_attendance_summary():
     data = request.get_json()
@@ -216,7 +220,7 @@ def send_attendance_summary():
     if not van_id or not month or not year:
         return jsonify({"error": "Missing van_id, month, or year"}), 400
 
-    filename = f"attendance_{van_id}_{month}_{year}.xlsx"
+    filename = f"attendance_{van_id.lower()}_{month}_{year}.xlsx"
     path = Path(filename)
 
     if path.exists():
