@@ -53,7 +53,7 @@
       .then(data => {
         document.getElementById("status_message").innerText = data.message || data.error;
         if (data.success !== false) {
-          document.getElementById("otp_section").classList.add("show");
+          document.getElementById("otp_section").style.display = "block";
         }
       });
     }
