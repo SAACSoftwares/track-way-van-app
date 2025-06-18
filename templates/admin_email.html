@@ -95,8 +95,7 @@
     };
 
     // Send OTP to email
-    function sendOTP(event) {
-  event.preventDefault();
+    function sendOTP() {
   const email = document.getElementById("admin_email").value.trim();
   if (!email || !email.includes("@")) {
     return alert("Please enter a valid email address.");
@@ -111,11 +110,19 @@
   .then(data => {
     document.getElementById("status_message").innerText = data.message || data.error;
 
+    // ✅ Show OTP box regardless of `success` flag if no error
     if (!data.error) {
+      console.log("✅ Showing OTP input section");
       document.getElementById("otp_section").style.display = "block";
+    } else {
+      console.warn("⚠️ Error received:", data.error);
     }
+  })
+  .catch(err => {
+    console.error("❌ Request failed:", err);
   });
 }
+
 
 
 
