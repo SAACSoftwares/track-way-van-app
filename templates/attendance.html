@@ -66,10 +66,10 @@
     <nav>
       <a href="{{ url_for('home') }}">Dashboard</a>
       <a href="{{ url_for('trip_logger') }}">Trip Logger</a>
-      <a href="{{ url_for('view_logs') }}">View Logs</a>
+      <a href="{{ url_for('view_logs_page') }}">View Logs</a>
       <a href="{{ url_for('attendance') }}">Attendance</a>
       <a href="{{ url_for('attendance_viewer') }}">Attendance Viewer</a>
-      <a href="{{ url_for('admin_login') }}">Admin</a>
+      <a href="{{ url_for('admin_login_page') }}">Admin</a>
 
     </nav>
   </header>
@@ -109,7 +109,7 @@
       const van_id = document.getElementById("van_id").value.trim().toUpperCase();
       if (!van_id) return alert("Please enter a van ID");
 
-      fetch(`http://192.168.29.233:5000/get_students?van_id=${van_id}`)
+      fetch(`/get_students?van_id=${van_id}`)
         .then(res => res.json())
         .then(data => {
           const box = document.getElementById("student-box");
@@ -167,7 +167,7 @@
       const van_id = document.getElementById("van_id").value.trim().toUpperCase();
       if (!van_id || attendanceRecords.length === 0) return;
 
-      fetch("http://192.168.29.233:5000/submit_attendance", {
+      fetch("/submit_attendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ van_id, records: attendanceRecords })

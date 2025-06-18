@@ -13,10 +13,10 @@
     <nav>
       <a href="{{ url_for('home') }}">Dashboard</a>
       <a href="{{ url_for('trip_logger') }}">Trip Logger</a>
-      <a href="{{ url_for('view_logs') }}">View Logs</a>
+      <a href="{{ url_for('view_logs_page') }}">View Logs</a>
       <a href="{{ url_for('attendance') }}">Attendance</a>
       <a href="{{ url_for('attendance_viewer') }}">Attendance Viewer</a>
-      <a href="{{ url_for('admin_login') }}">Admin</a>
+      <a href="{{ url_for('admin_login_page') }}">Admin</a>
 
     </nav>
   </header>
@@ -66,7 +66,7 @@
   <script>
     function getVanDetails() {
       const van_id = document.getElementById("van_id").value.trim().toUpperCase();
-      fetch(`http://192.168.29.233:5000/get_van_details?van_id=${van_id}`)  // if accessing from phone
+      fetch(`/get_van_details?van_id=${van_id}`)  // if accessing from phone
         .then(res => res.json())
         .then(data => {
           if (data.error) {
@@ -90,7 +90,7 @@
       const stage = document.getElementById("stage").value;
       const odometer = document.getElementById("odometer").value;
 
-      fetch(`http://192.168.29.233:5000/log_trip`, {
+      fetch(`/log_trip`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ van_id, stage, odometer })

@@ -83,8 +83,8 @@
       <div class="logo">🚌 Track Way</div>
       <a href="#" onclick="logout()" style="font-weight: bold; color: red; font-size: 14px; text-decoration: none; display: inline-block; margin-top: 5px;">Logout</a>
     </div>
-    <nav><a href="{{ url_for('admin_login') }}">Admin</a></nav>
-    <nav><a href="{{ url_for('change_password') }}">Change Password</a></nav>
+    <nav><a href="{{ url_for('admin_login_page') }}">Admin</a></nav>
+    <nav><a href="{{ url_for('change_password_page') }}">Change Password</a></nav>
     <nav><a href="{{ url_for('admin_email') }}">Admin Email</a></nav>
     <nav><a href="#" onclick="showTab('email_update_section', event)">Admin Email</a></nav>
   </header>
@@ -235,7 +235,7 @@
         contact: document.getElementById("contact").value.trim(),
         seat_capacity: document.getElementById("seats").value.trim()
       };
-      fetch("http://192.168.29.233:5000/add_van", {
+      fetch("/add_van", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data)
       }).then(res => res.json()).then(data => {
         document.getElementById("van_status").innerText = data.message || data.error;
@@ -250,7 +250,7 @@
         address: document.getElementById("s_address").value.trim(),
         parent_contact: document.getElementById("s_contact").value.trim()
       };
-      fetch("http://192.168.29.233:5000/add_student", {
+      fetch("/add_student", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data)
       }).then(res => res.json()).then(data => {
         document.getElementById("student_status").innerText = data.message || data.error;
@@ -258,7 +258,7 @@
     }
 
     function fetchVans() {
-      fetch("http://192.168.29.233:5000/get_all_vans").then(res => res.json()).then(data => {
+      fetch("/get_all_vans").then(res => res.json()).then(data => {
         const tbody = document.querySelector("#van_table tbody");
         tbody.innerHTML = "";
         Object.entries(data).forEach(([id, d]) => {
@@ -282,7 +282,7 @@
 
     function updateVan(id, btn) {
       const row = btn.closest("tr");
-      fetch("http://192.168.29.233:5000/update_van", {
+      fetch("/update_van", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           van_id: id,
@@ -296,7 +296,7 @@
 
     function deleteVan(id) {
       if (!confirm("Delete this van?")) return;
-      fetch("http://192.168.29.233:5000/delete_van", {
+      fetch("/delete_van", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ van_id: id })
       }).then(res => res.json()).then(data => {
         alert(data.message || data.error); fetchVans();
@@ -307,7 +307,7 @@
       const vanId = document.getElementById("student_van_id").value.trim().toUpperCase();
       if (!vanId) return alert("Enter Van ID");
 
-      fetch(`http://192.168.29.233:5000/get_students?van_id=${vanId}`)
+      fetch(`/get_students?van_id=${vanId}`)
       .then(res => res.json()).then(data => {
         const tbody = document.querySelector("#student_table tbody");
         tbody.innerHTML = "";
@@ -333,7 +333,7 @@
 
     function updateStudent(vanId, sno, btn) {
       const row = btn.closest("tr");
-      fetch("http://192.168.29.233:5000/update_student", {
+      fetch("/update_student", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           van_id: vanId, sno: sno,
@@ -347,7 +347,7 @@
 
     function deleteStudent(vanId, sno) {
       if (!confirm("Delete student?")) return;
-      fetch("http://192.168.29.233:5000/delete_student", {
+      fetch("/delete_student", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ van_id: vanId, sno })
       }).then(res => res.json()).then(data => {
@@ -361,7 +361,7 @@
       const year = document.getElementById("att_year").value.trim();
       if (!van_id || !year) return alert("Enter all fields");
 
-      fetch(`http://192.168.29.233:5000/view_attendance?van_id=${van_id}&month=${month}&year=${year}`)
+      fetch(`/view_attendance?van_id=${van_id}&month=${month}&year=${year}`)
         .then(res => res.text()).then(data => {
           document.getElementById("attendance_result_admin").innerHTML = data;
         });

@@ -13,10 +13,10 @@
     <nav>
       <a href="{{ url_for('home') }}">Dashboard</a>
       <a href="{{ url_for('trip_logger') }}">Trip Logger</a>
-      <a href="{{ url_for('view_logs') }}">View Logs</a>
+      <a href="{{ url_for('view_logs_page') }}">View Logs</a>
       <a href="{{ url_for('attendance') }}">Attendance</a>
       <a href="{{ url_for('attendance_viewer') }}">Attendance Viewer</a>
-      <a href="{{ url_for('admin_login') }}">Admin</a>
+      <a href="{{ url_for('admin_login_page') }}">Admin</a>
 
     </nav>
   </header>
@@ -74,7 +74,7 @@
         return;
       }
 
-      fetch(`http://192.168.29.233:5000/view_logs?month=${month}&year=${year}`)
+      fetch(`/view_logs?month=${month}&year=${year}`)
         .then(res => res.text())
         .then(html => {
   container.innerHTML = html;
