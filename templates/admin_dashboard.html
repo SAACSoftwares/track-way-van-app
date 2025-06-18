@@ -98,7 +98,6 @@
       <button class="glow-button" onclick="showTab('van_list_section', event)">View/Edit Vans</button>
       <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
       <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
-      <button class="glow-button" onclick="showTab('email_update_section', event)">Admin Email</button>
       <button class="glow-button" onclick="showTab('summary_section', event)">Summary Reports</button>
     </div>
 
@@ -200,23 +199,6 @@
       </div>
     </section>
 
-    <section class="form-section admin-section" id="email_update_section">
-  <div class="form-box">
-    <h3>Update Admin Email</h3>
-    <label>New Email Address:</label>
-    <input type="email" id="admin_email_input" class="input-box" />
-    <button onclick="sendOtpToEmail(event)">Send OTP</button>
-
-    <!-- ✅ OTP input block (initially hidden) -->
-    <div id="otp_section" style="display: none; margin-top: 20px;">
-      <label>Enter OTP:</label>
-      <input type="text" id="admin_otp_input" class="input-box" />
-      <button onclick="verifyOtpAndSaveEmail()">Verify & Update Email</button>
-    </div>
-
-    <p id="email_update_status"></p>
-  </div>
-</section>
 <section class="form-section admin-section" id="summary_section">
   <div class="form-box">
     <h3>📤 Send Summary Reports</h3>
@@ -402,57 +384,6 @@
         });
     }
 
-    function logout() {
-      localStorage.removeItem("isAdmin");
-      window.location.href = "{{ url_for('admin_login_page') }}";
-    }
-
-    window.onload = function () {
-      if (!localStorage.getItem("isAdmin")) {
-        alert("Access denied. Please login as admin.");
-        window.location.href = "{{ url_for('admin_login_page') }}";
-      }
-    }
-
-    function sendOtpToEmail(event) {
-  if (event) event.preventDefault();
-
-  const email = document.getElementById("admin_email_input").value.trim();
-  if (!email.includes("@")) return alert("Enter a valid email");
-
-  fetch("/send_admin_email_otp", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email })
-  })
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("email_update_status").innerText = data.message || data.error;
-    if (!data.error) {
-      document.getElementById("otp_section").style.display = "block";
-    }
-  });
-}
-
-
-
-    function verifyOtpAndSaveEmail() {
-      const email = document.getElementById("admin_email_input").value.trim();
-      const otp = document.getElementById("admin_otp_input").value.trim();
-
-      fetch("/verify_admin_email_otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("email_update_status").innerText = data.message || data.error;
-        if (data.success) {
-          document.getElementById("otp_section").style.display = "none";
-        }
-      });
-    }
     function logout() {
       localStorage.removeItem("isAdmin");
       window.location.href = "{{ url_for('admin_login_page') }}";
