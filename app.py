@@ -200,7 +200,6 @@ def submit_attendance():
                 break
 
     wb.save(path)
-    send_file_to_admin(path, "Attendance Sheet Update", f"Updated attendance for van {van_id}.")
     return jsonify({"message": "✅ Attendance saved!"})
 
 @app.route("/send_attendance_summary", methods=["POST"])
