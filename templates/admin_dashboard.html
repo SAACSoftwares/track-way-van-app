@@ -99,7 +99,7 @@
   <button class="glow-button" onclick="showTab('van_list_section', event)">View/Edit Vans</button>
   <button class="glow-button" onclick="showTab('student_list_section', event)">View/Edit Students</button>
   <button class="glow-button" onclick="showTab('attendance_view_section', event)">View Attendance</button>
-  <button class="glow-button" onclick="showTab('email_update_section', event)">Admin Email</button>
+  <button class="glow-button" onclick="showTab('email_update_section')">Admin Email</button>
 </div>
 
     <!-- Admin Email Section -->
@@ -220,12 +220,21 @@
 
   <script>
     function showTab(tab, event) {
-      document.querySelectorAll(".admin-section").forEach(s => s.classList.remove("active"));
-      document.querySelectorAll(".admin-tabs button").forEach(b => b.classList.remove("active"));
-      document.getElementById(tab).classList.add("active");
-      event.target.classList.add("active");
-      if (tab === "van_list_section") fetchVans();
-    }
+  // Hide all sections
+  document.querySelectorAll(".admin-section").forEach(s => s.classList.remove("active"));
+
+  // Show the selected one
+  document.getElementById(tab).classList.add("active");
+
+  // Mark button as active (only for tab buttons, avoid JS error if `event` is null)
+  if (event) {
+    document.querySelectorAll(".admin-tabs button").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+  }
+
+  // Load vans when van section is activated
+  if (tab === "van_list_section") fetchVans();
+}
 
     function submitVan() {
       const data = {
