@@ -69,7 +69,7 @@
 
       <label>Enter New Admin Email:</label>
       <input type="email" id="admin_email" class="input-box" placeholder="you@example.com" />
-      <button onclick="sendOTP()">Send OTP</button>
+      <button onclick="sendOTP(event)">Send OTP</button>
 
       <!-- OTP input section (initially hidden) -->
       <div id="otp_section" style="display:none;">
@@ -95,27 +95,29 @@
     };
 
     // Send OTP to email
-    function sendOTP() {
-      const email = document.getElementById("admin_email").value.trim();
-      if (!email || !email.includes("@")) {
-        return alert("Please enter a valid email address.");
-      }
+    function sendOTP(event) {
+  event.preventDefault();
+  const email = document.getElementById("admin_email").value.trim();
+  if (!email || !email.includes("@")) {
+    return alert("Please enter a valid email address.");
+  }
 
-      fetch("/send_admin_email_otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("status_message").innerText = data.message || data.error;
+  fetch("/send_admin_email_otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("status_message").innerText = data.message || data.error;
 
-        if (data.success !== false) {
-          // ✅ Show OTP input
-          document.getElementById("otp_section").style.display = "block";
-        }
-      });
+    if (!data.error) {
+      document.getElementById("otp_section").style.display = "block";
     }
+  });
+}
+
+
 
     // Verify OTP and update email
     function verifyOTP() {
