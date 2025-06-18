@@ -692,6 +692,20 @@ def verify_admin_email_otp():
     else:
         return jsonify({"success": False, "error": "Incorrect OTP"}), 400
 
+from flask import jsonify
+from datetime import datetime
+
+@app.route("/send_daily_trip_log", methods=["POST"])
+def send_daily_trip_log():
+    today = datetime.now().strftime("%Y-%m-%d")
+    filename = datetime.now().strftime("%B_%Y").lower() + ".xlsx"
+    path = Path(filename)
+
+    if not path.exists():
+        return jsonify({"error": "Trip log file not found"}), 404
+
+    send_file_to_admin(path, f"🚌 Daily Trip Log - {today}", f"Attached is the trip log for {today}.")
+    return jsonify({"message": "✅ Daily trip log sent successfully."})
 
 @app.route("/healthz")
 def health_check():
