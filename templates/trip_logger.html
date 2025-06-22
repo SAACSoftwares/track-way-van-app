@@ -18,6 +18,27 @@
       <a href="{{ url_for('attendance') }}">Attendance</a>
       <a href="{{ url_for('attendance_viewer') }}">Attendance Viewer</a>
       <a href="{{ url_for('admin_login_page') }}">Admin</a>
+      <a href="{{ url_for('scan_qr') }}" style="text-decoration: none;">
+  <button style="
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+  ">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 16 16">
+  <path d="M10.5 2a.5.5 0 0 1 .5.5V3h1a1 1 0 0 1 1 1v1H3V4a1 1 0 0 1 1-1h1v-.5a.5.5 0 0 1 .5-.5h5zM3 6v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6H3zm5 1a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/>
+</svg>
+ Scan QR
+  </button>
+</a>
+
 
     </nav>
   </header>
