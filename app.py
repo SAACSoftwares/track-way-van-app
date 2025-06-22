@@ -32,8 +32,8 @@ def trip_logger():
         a = math.sin(d_phi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(d_lambda/2)**2
         return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-    GATE_LAT = 12.961398  # Replace with your actual gate coordinates
-    GATE_LNG = 77.585654
+    GATE_LAT = 17.319122395329302  # Replace with your actual gate coordinates
+    GATE_LNG = 76.8036174925294 
     ALLOWED_RADIUS_METERS = 100
 
     with open("vans.json", "r") as f:

@@ -23,28 +23,49 @@
 </head>
 <body>
   <h2>📷 Scan Van QR Code</h2>
-  <p class="info">Please allow camera access to scan the QR code stuck on the van.</p>
+  <p class="info">Please allow camera and location access.</p>
   <div id="reader"></div>
 
+  <!-- Request location on page load -->
+  <script>
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        sessionStorage.setItem("latitude", pos.coords.latitude);
+        sessionStorage.setItem("longitude", pos.coords.longitude);
+      },
+      (err) => {
+        alert("⚠️ Location access denied. Trip may not be logged correctly.");
+      }
+    );
+  </script>
+
+  <!-- QR Scanner -->
   <script>
     function onScanSuccess(qrMessage) {
-      window.location.href = qrMessage; // Redirect to the log_trip page
+      const lat = sessionStorage.getItem("latitude");
+      const lng = sessionStorage.getItem("longitude");
+
+      let redirectURL = qrMessage;
+      if (lat && lng) {
+        const hasQuery = qrMessage.includes("?");
+        redirectURL += hasQuery ? `&` : `?`;
+        redirectURL += `lat=${lat}&lng=${lng}`;
+      }
+
+      window.location.href = redirectURL;
     }
 
     function onScanError(errorMessage) {
-      // Optional: show scanning errors if needed
+      // Optionally log scan errors here
     }
 
     const html5QrCode = new Html5Qrcode("reader");
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 250 }
-    };
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
     Html5Qrcode.getCameras().then(devices => {
       if (devices && devices.length) {
         html5QrCode.start(
-          { facingMode: "environment" }, // Use rear camera
+          { facingMode: "environment" },
           config,
           onScanSuccess,
           onScanError
@@ -53,7 +74,7 @@
         alert("No camera found or permission denied.");
       }
     }).catch(err => {
-      alert("Camera initialization failed: " + err);
+      alert("Camera access error: " + err);
     });
   </script>
 </body>
