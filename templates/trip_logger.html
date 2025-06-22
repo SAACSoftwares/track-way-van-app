@@ -1,136 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Trip Logger</title>
-  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          document.getElementById("latitude").value = pos.coords.latitude;
+          document.getElementById("longitude").value = pos.coords.longitude;
+          document.getElementById("trip-form").style.display = "block";
+          document.getElementById("gps-msg").style.display = "none";
+        }, () => {
+          alert("Location permission denied.");
+        });
+      } else {
+        alert("Geolocation is not supported.");
+      }
+    }
 
+    window.onload = getLocation;
+  </script>
 </head>
 <body>
-  <header>
-    <div class="logo">🚌 Track Way</div>
-    <nav>
-      <a href="{{ url_for('home') }}">Dashboard</a>
-      <a href="{{ url_for('trip_logger') }}">Trip Logger</a>
-      <a href="{{ url_for('view_logs_page') }}">View Logs</a>
-      <a href="{{ url_for('attendance') }}">Attendance</a>
-      <a href="{{ url_for('attendance_viewer') }}">Attendance Viewer</a>
-      <a href="{{ url_for('admin_login_page') }}">Admin</a>
-      <a href="{{ url_for('scan_qr') }}" style="text-decoration: none;">
-  <button style="
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 18px;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 20px;
-  ">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 16 16">
-  <path d="M10.5 2a.5.5 0 0 1 .5.5V3h1a1 1 0 0 1 1 1v1H3V4a1 1 0 0 1 1-1h1v-.5a.5.5 0 0 1 .5-.5h5zM3 6v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6H3zm5 1a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/>
-</svg>
- Scan QR
-  </button>
-</a>
+  <h2>📝 Manual Trip Logger (Watchman Only)</h2>
+  <p id="gps-msg">Fetching your location... please allow access.</p>
 
+  <form method="POST" id="trip-form" style="display: none;">
+    <label for="van_id">Select Van:</label>
+    <select name="van_id" required>
+      {% for van_id, details in vans.items() %}
+        <option value="{{ van_id }}">{{ van_id }} - {{ details.number }}</option>
+      {% endfor %}
+    </select><br><br>
 
-    </nav>
-  </header>
+    <label>Arrival Odometer:</label>
+    <input type="number" name="odometer" required><br><br>
 
-  <main>
-    <section class="hero">
-      <h1>Log a Van Trip</h1>
-      <p>Enter van ID to fetch details and submit departure/arrival logs.</p>
-    </section>
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
 
-    <section class="form-section">
-      <div class="form-box">
-        <label for="van_id">Van ID:</label>
-        <input type="text" id="van_id" class="input-box" placeholder="Enter a valid Van ID" />
-
-        <button class="glow-button" onclick="getVanDetails()">Get Van Details</button>
-
-        <div id="van_info" style="display: none; margin-top: 20px;">
-          <p><strong>Van Number:</strong> <span id="info_id"></span></p>
-          <p><strong>Driver Name:</strong> <span id="info_driver"></span></p>
-          <p><strong>Route:</strong> <span id="info_route"></span></p>
-          <p><strong>Contact:</strong> <span id="info_contact"></span></p>
-          <p><strong>Seat Capacity:</strong> <span id="info_seats"></span></p>
-          <p><strong>Time:</strong> <span id="info_time"></span></p>
-
-          <label for="stage">Trip Stage:</label>
-          <select id="stage" class="input-box">
-            <option value="departure">Departure</option>
-            <option value="arrival">Arrival</option>
-          </select>
-
-          <label for="odometer">Odometer Reading:</label>
-          <input type="number" id="odometer" class="input-box" placeholder="Enter Reading" />
-
-          <button class="glow-button" onclick="submitLog()">Submit</button>
-
-          <p class="status" id="status" style="margin-top: 10px;"></p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 SAAC Softwares. All rights reserved.</p>
-  </footer>
-
-  <script>
-    function getVanDetails() {
-      const van_id = document.getElementById("van_id").value.trim().toUpperCase();
-      fetch(`/get_van_details?van_id=${van_id}`)  // if accessing from phone
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            document.getElementById("status").innerText = "Van not found.";
-            document.getElementById("van_info").style.display = "none";
-          } else {
-            document.getElementById("info_id").innerText = data.van_id;
-            document.getElementById("info_driver").innerText = data.driver;
-            document.getElementById("info_route").innerText = data.route;
-            document.getElementById("info_contact").innerText = data.contact;
-            document.getElementById("info_seats").innerText = data.seat_capacity;
-            document.getElementById("info_time").innerText = data.time;
-            document.getElementById("van_info").style.display = "block";
-            document.getElementById("status").innerText = "";
-          }
-        });
-    }
-
-    function submitLog() {
-      const van_id = document.getElementById("van_id").value.trim().toUpperCase();
-      const stage = document.getElementById("stage").value;
-      const odometer = document.getElementById("odometer").value;
-
-      fetch(`/log_trip`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ van_id, stage, odometer })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.message) {
-          document.getElementById("status").innerText = data.message;
-          document.getElementById("odometer").value = "";
-        } else {
-          document.getElementById("status").innerText = data.error;
-        }
-      });
-    }
-  </script>
-  <footer style="text-align:center; padding: 15px 0; font-size: 14px; color: #666;">
-  Contact us: <a href="mailto:saacsoftwares@gmail.com">saacsoftwares@gmail.com</a>
-</footer>
-
+    <button type="submit">Log Trip</button>
+  </form>
 </body>
 </html>

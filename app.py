@@ -16,9 +16,62 @@ from flask import render_template
 def home():
     return render_template("index.html")
 
-@app.route("/trip_logger")
+@app.route('/trip_logger', methods=['GET', 'POST'])
 def trip_logger():
-    return render_template("trip_logger.html")
+    import json
+    from datetime import datetime
+    import os
+    from openpyxl import load_workbook, Workbook
+    import math
+
+    def haversine(lat1, lon1, lat2, lon2):
+        R = 6371000
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        d_phi = math.radians(lat2 - lat1)
+        d_lambda = math.radians(lon2 - lon1)
+        a = math.sin(d_phi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(d_lambda/2)**2
+        return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    GATE_LAT = 12.961398  # Replace with your actual gate coordinates
+    GATE_LNG = 77.585654
+    ALLOWED_RADIUS_METERS = 100
+
+    with open("vans.json", "r") as f:
+        vans = json.load(f)
+
+    if request.method == 'POST':
+        van_id = request.form.get('van_id')
+        odometer = request.form.get('odometer')
+        latitude = float(request.form.get('latitude', 0))
+        longitude = float(request.form.get('longitude', 0))
+
+        if van_id not in vans:
+            return f"Van ID {van_id} not found.", 404
+
+        distance = haversine(latitude, longitude, GATE_LAT, GATE_LNG)
+        if distance > ALLOWED_RADIUS_METERS:
+            return "You are not at the authorized logging location.", 403
+
+        van_details = vans[van_id]
+        now = datetime.now()
+        month = now.strftime("%B").lower()
+        year = now.year
+        filename = f"{month}_{year}.xlsx"
+
+        if os.path.exists(filename):
+            wb = load_workbook(filename)
+        else:
+            wb = Workbook()
+            ws = wb.active
+            ws.append(["Van ID", "Van Number", "Arrival Odometer", "Arrival Time"])
+        ws = wb.active
+        ws.append([van_id, van_details['number'], odometer, now.strftime("%Y-%m-%d %H:%M:%S")])
+        wb.save(filename)
+
+        return f"Trip for {van_id} logged successfully."
+
+    return render_template("trip_logger.html", vans=vans)
+
 
 @app.route("/view_logs_page")
 def view_logs_page():
