@@ -40,38 +40,36 @@ def trip_logger():
         vans = json.load(f)
 
     if request.method == 'POST':
-        van_id = request.form.get('van_id')
-        odometer = request.form.get('odometer')
-        latitude = float(request.form.get('latitude', 0))
-        longitude = float(request.form.get('longitude', 0))
+    van_id = request.form.get('van_id')
+    odometer = request.form.get('odometer')
+    latitude = float(request.form.get('latitude', 0))
+    longitude = float(request.form.get('longitude', 0))
 
-        if van_id not in vans:
-            return f"Van ID {van_id} not found.", 404
+    distance = haversine(latitude, longitude, GATE_LAT, GATE_LNG)
+    if distance > ALLOWED_RADIUS_METERS:
+        return "You are not at the authorized logging location.", 403
 
-        distance = haversine(latitude, longitude, GATE_LAT, GATE_LNG)
-        if distance > ALLOWED_RADIUS_METERS:
-            return "You are not at the authorized logging location.", 403
+    # Safely get van info (even if not found in JSON)
+    van_details = vans.get(van_id, {})
+    van_number = van_details.get("number", van_id)  # fallback to ID
 
-        van_details = vans[van_id]
-        now = datetime.now()
-        month = now.strftime("%B").lower()
-        year = now.year
-        filename = f"{month}_{year}.xlsx"
+    now = datetime.now()
+    month = now.strftime("%B").lower()
+    year = now.year
+    filename = f"{month}_{year}.xlsx"
 
-        if os.path.exists(filename):
-            wb = load_workbook(filename)
-        else:
-            wb = Workbook()
-            ws = wb.active
-            ws.append(["Van ID", "Van Number", "Arrival Odometer", "Arrival Time"])
+    if os.path.exists(filename):
+        wb = load_workbook(filename)
         ws = wb.active
-        ws.append([van_id, van_details['number'], odometer, now.strftime("%Y-%m-%d %H:%M:%S")])
-        wb.save(filename)
+    else:
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["Van ID", "Van Number", "Arrival Odometer", "Arrival Time"])
 
-        return f"Trip for {van_id} logged successfully."
+    ws.append([van_id, van_number, odometer, now.strftime("%Y-%m-%d %H:%M:%S")])
+    wb.save(filename)
 
-    return render_template("trip_logger.html")
-
+    return f"Trip for {van_id} logged successfully."
 
 @app.route("/view_logs_page")
 def view_logs_page():
