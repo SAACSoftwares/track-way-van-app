@@ -70,7 +70,7 @@ def trip_logger():
 
         return f"Trip for {van_id} logged successfully."
 
-    return render_template("trip_logger.html", vans=vans)
+    return render_template("trip_logger.html")
 
 
 @app.route("/view_logs_page")
