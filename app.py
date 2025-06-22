@@ -703,6 +703,13 @@ def send_daily_trip_log():
 def health_check():
     return "OK", 200
 
+# Add this import at the top if not already present
+from flask import render_template
+
+# Add this route near your existing routes
+@app.route('/scan')
+def scan_qr():
+    return render_template('scan.html')
 
 import os
 

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scan Van QR</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    .info {
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📷 Scan Van QR Code</h2>
+  <p class="info">Please allow camera access to scan the QR code stuck on the van.</p>
+  <div id="reader"></div>
+
+  <script>
+    function onScanSuccess(qrMessage) {
+      window.location.href = qrMessage; // Redirect to the log_trip page
+    }
+
+    function onScanError(errorMessage) {
+      // Optional: show scanning errors if needed
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 }
+    };
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        html5QrCode.start(
+          { facingMode: "environment" }, // Use rear camera
+          config,
+          onScanSuccess,
+          onScanError
+        );
+      } else {
+        alert("No camera found or permission denied.");
+      }
+    }).catch(err => {
+      alert("Camera initialization failed: " + err);
+    });
+  </script>
+</body>
+</html>
