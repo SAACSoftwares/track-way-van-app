@@ -105,7 +105,7 @@ def trip_logger():
             ws = wb.active
             ws.append(["Van ID", "Van Number", "Arrival Odometer", "Arrival Time"])
         ws = wb.active
-        ws.append([van_id, van_details['number'], odometer, now.strftime("%Y-%m-%d %H:%M:%S")])
+        ws.append([van_id, van_id, odometer, now.strftime("%Y-%m-%d %H:%M:%S")])
         wb.save(filename)
 
         return f"Trip for {van_id} logged successfully."
