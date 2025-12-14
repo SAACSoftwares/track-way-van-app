@@ -610,21 +610,43 @@ def send_file_to_admin(filepath, subject, body):
     except:
         to_email = ADMIN_EMAIL
 
-    msg = MIMEMultipart()
-    msg["From"] = ADMIN_EMAIL
-    msg["To"] = to_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
-
+    # Read the file and encode it as base64
+    import base64
     with open(filepath, "rb") as file:
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(file.read())
-        encoders.encode_base64(part)
-        part.add_header("Content-Disposition", f'attachment; filename="{os.path.basename(filepath)}"')
-        msg.attach(part)
+        file_content = base64.b64encode(file.read()).decode()
+
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+    
+    if not RESEND_API_KEY:
+        print("❌ RESEND_API_KEY not found")
+        return
 
     try:
-        print(f"📤 Sent {os.path.basename(filepath)} to {to_email}")
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "from": "Track Way <onboarding@resend.dev>",
+                "to": [to_email],
+                "subject": subject,
+                "html": f"<p>{body}</p>",
+                "attachments": [
+                    {
+                        "filename": os.path.basename(filepath),
+                        "content": file_content
+                    }
+                ]
+            },
+            timeout=20
+        )
+
+        if response.status_code in (200, 201):
+            print(f"📤 Successfully sent {os.path.basename(filepath)} to {to_email}")
+        else:
+            print(f"❌ Email send failed: {response.text}")
     except Exception as e:
         print(f"❌ Email send failed: {str(e)}")
 
