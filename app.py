@@ -553,14 +553,15 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from flask import session
-from dotenv import load_dotenv
-
-load_dotenv()
 
 OTP_STORE = {}  # {email: otp}
 ADMIN_EMAIL_OTP_STORE = {}
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")  # for SMTP login
+
+print("🔐 ADMIN_EMAIL =", ADMIN_EMAIL)
+print("🔐 ADMIN_PASSWORD loaded =", bool(ADMIN_PASSWORD))
+
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
