@@ -1,3 +1,4 @@
+import requests
 import random
 import json
 import calendar
@@ -9,6 +10,32 @@ import json, openpyxl
 from flask import session
 import os
 from flask import redirect
+import smtplib
+from email.mime.text import MIMEText
+def send_email_resend(to_email, subject, html):
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+    if not RESEND_API_KEY:
+        raise Exception("RESEND_API_KEY not found")
+
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "from": "Track Way <onboarding@resend.dev>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html
+        },
+        timeout=20
+    )
+
+    if response.status_code not in (200, 201):
+        raise Exception(response.text)
+
 
 def admin_required():
     return session.get("admin_logged_in") is True
@@ -549,9 +576,9 @@ def delete_student():
         json.dump(student_data, f, indent=2)
 
     return jsonify({"message": f"🗑️ Student S.No {sno} removed from {van_id}"})
-import smtplib
+
 import os
-from email.mime.text import MIMEText
+
 from flask import session
 
 OTP_STORE = {}  # {email: otp}
@@ -592,24 +619,14 @@ def send_file_to_admin(filepath, subject, body):
         msg.attach(part)
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
-            smtp.starttls()
-            smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
-            smtp.send_message(msg)
         print(f"📤 Sent {os.path.basename(filepath)} to {to_email}")
     except Exception as e:
         print(f"❌ Email send failed: {str(e)}")
 
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
-    # 🔒 Accept JSON OR form-data
-    data = request.get_json(silent=True) or request.form
-
+    data = request.get_json()
     email = data.get("email")
-
-    print("📩 OTP request received")
-    print("📨 Raw data:", data)
-    print("📧 Email:", email)
 
     if not email:
         return jsonify({"error": "Email required"}), 400
@@ -617,30 +634,21 @@ def send_otp():
     otp = str(random.randint(100000, 999999))
     OTP_STORE[email] = otp
 
-    print("🔐 Generated OTP:", otp)
-    print("📧 Using ADMIN_EMAIL:", ADMIN_EMAIL)
-    print("🔑 ADMIN_PASSWORD exists:", bool(ADMIN_PASSWORD))
-
-    msg = MIMEText(f"Your OTP to reset password is: {otp}")
-    msg["Subject"] = "Track Way - Password Reset OTP"
-    msg["From"] = ADMIN_EMAIL
-    msg["To"] = email
-
     try:
-        print("📡 Connecting to SMTP...")
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as smtp:
-            smtp.set_debuglevel(1)
-            smtp.starttls()
-            smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
-            smtp.send_message(msg)
-
-        print("✅ OTP SENT SUCCESSFULLY")
+        send_email_resend(
+            email,
+            "Track Way - Password Reset OTP",
+            f"""
+            <h2>Password Reset</h2>
+            <p>Your OTP is:</p>
+            <h1>{otp}</h1>
+            <p>This OTP is valid for 10 minutes.</p>
+            """
+        )
         return jsonify({"success": True, "message": "OTP sent successfully"})
-
     except Exception as e:
-        print("❌ OTP SEND FAILED:")
-        print(type(e).__name__, str(e))
-        return jsonify({"error": str(e)}), 500
+        print("❌ OTP SEND FAILED:", e)
+        return jsonify({"error": "Failed to send OTP"}), 500
 
 
 
