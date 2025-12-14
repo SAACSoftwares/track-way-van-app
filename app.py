@@ -602,31 +602,30 @@ def send_file_to_admin(filepath, subject, body):
 
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
+    data = request.get_json()
+    email = data.get("email")
+
+    print("📩 OTP request received for:", email)
+
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+
+    otp = str(random.randint(100000, 999999))
+    OTP_STORE[email] = otp
+
+    print("🔐 Generated OTP:", otp)
+    print("📧 Using ADMIN_EMAIL:", ADMIN_EMAIL)
+    print("🔑 ADMIN_PASSWORD exists:", bool(ADMIN_PASSWORD))
+
+    msg = MIMEText(f"Your OTP to reset password is: {otp}")
+    msg["Subject"] = "Track Way - Password Reset OTP"
+    msg["From"] = ADMIN_EMAIL
+    msg["To"] = email
+
     try:
-        data = request.get_json()
-        email = data.get("email")
-
-        print("📩 OTP request for:", email)
-        print("🔐 ADMIN_EMAIL =", ADMIN_EMAIL)
-        print("🔐 ADMIN_PASSWORD loaded =", bool(ADMIN_PASSWORD))
-
-        if not email:
-            return jsonify({"error": "Email required"}), 400
-
-        if not ADMIN_EMAIL or not ADMIN_PASSWORD:
-            return jsonify({"error": "Email service not configured"}), 500
-
-        otp = str(random.randint(100000, 999999))
-        OTP_STORE[email] = otp
-
-        msg = MIMEText(f"Your OTP to reset password is: {otp}")
-        msg["Subject"] = "Track Way - Password Reset OTP"
-        msg["From"] = ADMIN_EMAIL
-        msg["To"] = email
-
-        print("📧 Connecting to SMTP...")
-
-        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+        print("📡 Connecting to SMTP...")
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as smtp:
+            smtp.set_debuglevel(1)   # 🔥 THIS IS CRITICAL
             smtp.starttls()
             smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
             smtp.send_message(msg)
@@ -635,8 +634,10 @@ def send_otp():
         return jsonify({"success": True, "message": "OTP sent successfully"})
 
     except Exception as e:
-        print("❌ OTP ERROR:", str(e))
+        print("❌ OTP SEND FAILED:")
+        print(type(e).__name__, str(e))
         return jsonify({"error": str(e)}), 500
+
 
 
 
