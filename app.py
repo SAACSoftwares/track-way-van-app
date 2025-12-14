@@ -3,6 +3,10 @@ import os
 import random
 import json
 import calendar
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 from datetime import datetime
