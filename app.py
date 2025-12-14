@@ -1,4 +1,5 @@
 import requests
+import os
 import random
 import json
 import calendar
@@ -8,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 import json, openpyxl
 from flask import session
-import os
+
 from flask import redirect
 import smtplib
 from email.mime.text import MIMEText
@@ -636,21 +637,21 @@ def send_otp():
 
     try:
         send_email_resend(
-            email,
-            "Track Way - Password Reset OTP",
-            f"""
-            <h2>Password Reset</h2>
-            <p>Your OTP is:</p>
-            <h1>{otp}</h1>
-            <p>This OTP is valid for 10 minutes.</p>
+            to_email=email,
+            subject="Track Way - Password Reset OTP",
+            html=f"""
+                <h2>Password Reset OTP</h2>
+                <p>Your OTP is:</p>
+                <h1>{otp}</h1>
+                <p>This OTP is valid for a short time.</p>
             """
         )
+
         return jsonify({"success": True, "message": "OTP sent successfully"})
+
     except Exception as e:
-        print("❌ OTP SEND FAILED:", e)
+        print("❌ Resend OTP failed:", e)
         return jsonify({"error": "Failed to send OTP"}), 500
-
-
 
 
 
