@@ -602,10 +602,14 @@ def send_file_to_admin(filepath, subject, body):
 
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
-    data = request.get_json()
+    # 🔒 Accept JSON OR form-data
+    data = request.get_json(silent=True) or request.form
+
     email = data.get("email")
 
-    print("📩 OTP request received for:", email)
+    print("📩 OTP request received")
+    print("📨 Raw data:", data)
+    print("📧 Email:", email)
 
     if not email:
         return jsonify({"error": "Email required"}), 400
@@ -625,7 +629,7 @@ def send_otp():
     try:
         print("📡 Connecting to SMTP...")
         with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as smtp:
-            smtp.set_debuglevel(1)   # 🔥 THIS IS CRITICAL
+            smtp.set_debuglevel(1)
             smtp.starttls()
             smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
             smtp.send_message(msg)
@@ -637,6 +641,7 @@ def send_otp():
         print("❌ OTP SEND FAILED:")
         print(type(e).__name__, str(e))
         return jsonify({"error": str(e)}), 500
+
 
 
 
