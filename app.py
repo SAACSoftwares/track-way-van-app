@@ -603,26 +603,37 @@ def send_file_to_admin(filepath, subject, body):
 def send_otp():
     data = request.get_json()
     email = data.get("email")
+
     if not email:
         return jsonify({"error": "Email required"}), 400
 
     otp = str(random.randint(100000, 999999))
     OTP_STORE[email] = otp
 
-    # Prepare email
+    print("📧 Attempting to send OTP")
+    print("FROM:", ADMIN_EMAIL)
+    print("TO:", email)
+
     msg = MIMEText(f"Your OTP to reset password is: {otp}")
     msg["Subject"] = "Track Way - Password Reset OTP"
     msg["From"] = ADMIN_EMAIL
     msg["To"] = email
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
-            smtp.starttls()
-            smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
-            smtp.send_message(msg)
-        return jsonify({"success": True, "message": "✅ OTP sent to your email."})
+        smtp = smtplib.SMTP("smtp.gmail.com", 587, timeout=20)
+        smtp.set_debuglevel(1)   # 🔥 VERY IMPORTANT
+        smtp.starttls()
+        smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
+        smtp.send_message(msg)
+        smtp.quit()
+
+        print("✅ OTP email sent successfully")
+        return jsonify({"success": True, "message": "OTP sent"})
+
     except Exception as e:
-        return jsonify({"error": f"Failed to send email: {str(e)}"}), 500
+        print("❌ SMTP ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/reset_password", methods=["POST"])
 def reset_password():
