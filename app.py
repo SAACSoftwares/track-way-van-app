@@ -6,8 +6,16 @@ from flask_cors import CORS
 from datetime import datetime
 from pathlib import Path
 import json, openpyxl
+from flask import session
+import os
+from flask import redirect
+
+def admin_required():
+    return session.get("admin_logged_in") is True
+
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 CORS(app)
 
 from flask import render_template
@@ -32,7 +40,7 @@ def trip_logger():
         a = math.sin(d_phi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(d_lambda/2)**2
         return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-    GATE_LAT = 17.312098  # Replace with your actual gate coordinates
+    GATE_LAT = 17.312098  
     GATE_LNG = 76.814419 
     ALLOWED_RADIUS_METERS = 300
 
@@ -85,16 +93,21 @@ def attendance():
 def attendance_viewer():
     return render_template("attendance_viewer.html")
 
-@app.route("/admin_login")
+@app.route("/admin_login_page")
 def admin_login_page():
     return render_template("admin_login.html")
 
+
 @app.route("/admin_dashboard")
 def admin_dashboard():
+    if not admin_required():
+        return redirect("/admin_login")
     return render_template("admin_dashboard.html")
 
 @app.route("/change_password")
 def change_password_page():
+    if not admin_required():
+        return redirect("/admin_login")
     return render_template("change_password.html")
 
 @app.route("/forgot_password")
@@ -121,87 +134,12 @@ try:
 except:
     student_data = {}
 
-# === Utility: Trip Logger Excel ===
-def get_excel_path():
-    filename = datetime.now().strftime("%B_%Y").lower() + ".xlsx"
-    path = Path(filename)
-    if not path.exists():
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Trips"
-        ws.append([
-            "Van ID", "Driver Name", "Route", "Contact", "Seat Capacity",
-            "Departure Time", "Arrival Time", "Odometer Start", "Odometer End", "Distance"
-        ])
-        wb.save(path)
-    return path
-
-# === API: Fetch Van Details ===
-@app.route("/get_van_details", methods=["GET"])
-def get_van_details():
-    van_id = request.args.get("van_id", "").strip().upper()
-    details = van_data.get(van_id)
-    if details:
-        return jsonify({
-            "van_id": van_id,
-            "route": details["route"],
-            "driver": details["driver"],
-            "contact": details["contact"],
-            "seat_capacity": details["seat_capacity"],
-            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        })
-    return jsonify({"error": "Van not found"}), 404
-
-# === API: Log Trip ===
-@app.route("/log_trip", methods=["POST"])
-def log_trip():
-    data = request.get_json()
-    van_id = data.get("van_id", "").strip().upper()
-    stage = data.get("stage", "").strip().lower()
-    odometer = data.get("odometer")
-
-    if not van_id or stage not in ["departure", "arrival"] or odometer is None:
-        return jsonify({"error": "Invalid data"}), 400
-
-    try:
-        odo = int(odometer)
-    except:
-        return jsonify({"error": "Odometer must be a number"}), 400
-
-    details = van_data.get(van_id)
-    if not details:
-        return jsonify({"error": "Van not found in data"}), 404
-
-    excel_path = get_excel_path()
-    wb = openpyxl.load_workbook(excel_path)
-    ws = wb.active
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    if stage == "departure":
-        ws.append([
-            van_id, details["driver"], details["route"], details["contact"],
-            details["seat_capacity"], now, "", odo, "", ""
-        ])
-        wb.save(excel_path)
-        return jsonify({"message": "✅ Departure logged successfully"})
-
-    elif stage == "arrival":
-        for row in reversed(list(ws.iter_rows(min_row=2))):
-            if str(row[0].value).strip().upper() == van_id and row[6].value in (None, ""):
-                row[6].value = now
-                row[8].value = odo
-                try:
-                    distance = int(odo) - int(row[7].value)
-                    row[9].value = distance
-                except:
-                    row[9].value = ""
-                wb.save(excel_path)
-                return jsonify({"message": "✅ Arrival logged successfully"})
-        return jsonify({"error": "No matching departure found"}), 400
 
 # === API: Get Students for a Van ===
 @app.route("/get_students", methods=["GET"])
 def get_students():
+    if not admin_required():
+        return redirect("/admin_login")
     van_id = request.args.get("van_id", "").strip().upper()
     students = student_data.get(van_id)
     if not students:
@@ -221,42 +159,65 @@ def submit_attendance():
     today_str = now.strftime("%d-%b")
     month = now.strftime("%B").lower()
     year = now.strftime("%Y")
+
     filename = f"attendance_{van_id.lower()}_{month}_{year}.xlsx"
     path = Path(filename)
 
+    # ---------------- CREATE FILE IF NOT EXISTS ----------------
     if not path.exists():
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Attendance"
+
         headers = ["S.No", "Name", "Class & Section", "Address", "Parent Contact"]
         ws.append(headers + [today_str])
+
         for student in student_data.get(van_id, []):
             ws.append([
-                student["sno"], student["name"], student["class"],
-                student["address"], student["parent_contact"], ""
+                student["sno"],
+                student["name"],
+                student["class"],
+                student["address"],
+                student["parent_contact"],
+                ""
             ])
+
+    # ---------------- UPDATE FILE IF EXISTS ----------------
     else:
         wb = openpyxl.load_workbook(path)
         ws = wb.active
+
         headers = [cell.value for cell in ws[1]]
+        if today_str in headers:
+            return jsonify({"error": "Attendance already marked for today"}), 400
+
+
         if today_str not in headers:
             ws.cell(row=1, column=len(headers) + 1).value = today_str
+            headers.append(today_str)
 
-    date_col = [cell.value for cell in ws[1]].index(today_str) + 1
+    # ---------------- FIND DATE COLUMN ----------------
+    headers = [cell.value for cell in ws[1]]
+    date_col = headers.index(today_str) + 1
 
+    # ---------------- WRITE ATTENDANCE ----------------
     for record in records:
         sno = record.get("sno")
         status = record.get("status")
+
         for row in ws.iter_rows(min_row=2):
             if row[0].value == sno:
                 row[date_col - 1].value = status
                 break
 
     wb.save(path)
-    return jsonify({"message": "✅ Attendance saved!"})
+    return jsonify({"message": "✅ Attendance saved successfully!"})
+
 
 @app.route("/send_attendance_summary", methods=["POST"])
 def send_attendance_summary():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().lower()
     month = data.get("month", "").strip().lower()
@@ -372,7 +333,9 @@ def admin_login():
         return jsonify({"success": False, "message": "Password file missing or unreadable"}), 500
 
     if username == ADMIN_USERNAME and check_password_hash(stored_hash, password):
+        session["admin_logged_in"] = True
         return jsonify({"success": True})
+
     else:
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
 
@@ -395,6 +358,8 @@ def save_admin_password(new_hash):
 
 @app.route("/change_password", methods=["POST"])
 def change_password():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     old_pass = data.get("old_password")
     new_pass = data.get("new_password")
@@ -411,39 +376,12 @@ import json
 
 CONFIG_FILE = "config.json"
 
-# Get security question
-@app.route("/get_security_question")
-def get_security_question():
-    try:
-        with open(CONFIG_FILE, "r") as f:
-            config = json.load(f)
-        return jsonify({"question": config.get("security_question", "No question set.")})
-    except:
-        return jsonify({"question": "Unable to load question."})
 
-# Forgot Password - verify answer and reset password
-@app.route("/forgot_password", methods=["POST"])
-def forgot_password():
-    data = request.get_json()
-    answer = data.get("answer", "").strip().lower()
-    new_password = data.get("new_password", "").strip()
 
-    try:
-        with open(CONFIG_FILE, "r") as f:
-            config = json.load(f)
-
-        if answer != config.get("security_answer", "").strip().lower():
-            return jsonify({"success": False, "error": "Incorrect answer."}), 401
-
-        config["password"] = new_password
-        with open(CONFIG_FILE, "w") as f:
-            json.dump(config, f, indent=2)
-
-        return jsonify({"success": True, "message": "✅ Password reset successfully."})
-    except:
-        return jsonify({"success": False, "error": "Error updating password."}), 500
 @app.route("/update_admin_email", methods=["POST"])
 def update_admin_email():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     new_email = data.get("email", "").strip()
 
@@ -473,6 +411,8 @@ def get_admin_email():
 # === Add Van Entry ===
 @app.route("/add_van", methods=["POST"])
 def add_van():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().upper()
 
@@ -493,6 +433,8 @@ def add_van():
 # === Add Student to a Van ===
 @app.route("/add_student", methods=["POST"])
 def add_student():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().upper()
 
@@ -521,10 +463,14 @@ def add_student():
 
 @app.route("/get_all_vans")
 def get_all_vans():
+    if not admin_required():
+        return redirect("/admin_login")
     return jsonify(van_data)
 
 @app.route("/update_van", methods=["POST"])
 def update_van():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().upper()
 
@@ -545,6 +491,8 @@ def update_van():
 
 @app.route("/delete_van", methods=["POST"])
 def delete_van():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().upper()
 
@@ -557,6 +505,8 @@ def delete_van():
     return jsonify({"error": "Van not found"}), 404
 @app.route("/update_student", methods=["POST"])
 def update_student():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().upper()
     sno = data.get("sno")
@@ -579,6 +529,8 @@ def update_student():
 
 @app.route("/delete_student", methods=["POST"])
 def delete_student():
+    if not admin_required():
+        return redirect("/admin_login")
     data = request.get_json()
     van_id = data.get("van_id", "").strip().upper()
     sno = data.get("sno")
@@ -742,6 +694,8 @@ from datetime import datetime
 
 @app.route("/send_daily_trip_log", methods=["POST"])
 def send_daily_trip_log():
+    if not admin_required():
+        return redirect("/admin_login")
     today = datetime.now().strftime("%Y-%m-%d")
     filename = datetime.now().strftime("%B_%Y").lower() + ".xlsx"
     path = Path(filename)

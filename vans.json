@@ -3,84 +3,98 @@
     "route": "R7",
     "driver": "Xyz Kumar",
     "contact": "1234567890",
-    "seat_capacity": 50
+    "seat_capacity": 50,
+    "number": "KA32Z3635"
   },
   "KA32B5432": {
     "route": "R3",
     "driver": "Abc Singh",
     "contact": "9998887776",
-    "seat_capacity": 40
+    "seat_capacity": 40,
+    "number": "KA32B5432"
   },
   "KA32B2345": {
     "route": "R41",
     "driver": "CDF kumar",
     "contact": "1234567890",
-    "seat_capacity": "20"
+    "seat_capacity": "20",
+    "number": "KA32B2345"
   },
   "KA32Y7890": {
     "route": "R33",
     "driver": "EFG Reddy",
     "contact": "1234567890",
-    "seat_capacity": "10"
+    "seat_capacity": "10",
+    "number": "KA32Y7890"
   },
   "KA32X1709": {
     "route": "R48",
     "driver": "XYA Kapoor",
     "contact": "1234567890",
-    "seat_capacity": "20"
+    "seat_capacity": "20",
+    "number": "KA32X1709"
   },
   "KA32F3525": {
     "route": "R55",
     "driver": "AEFF",
     "contact": "1234567890",
-    "seat_capacity": "20"
+    "seat_capacity": "20",
+    "number": "KA32F3525"
   },
   "KA32E3635": {
     "route": "E2",
     "driver": "afasf",
     "contact": "1234567890",
-    "seat_capacity": "20"
+    "seat_capacity": "20",
+    "number": "KA32E3635"
   },
   "KA32E2345": {
     "route": "R1",
     "driver": "afasf",
     "contact": "1234567890",
-    "seat_capacity": "123"
+    "seat_capacity": "123",
+    "number": "KA32E2345"
   },
   "KA32F3635": {
     "route": "E1",
     "driver": "ADDFG",
     "contact": "1234567890",
-    "seat_capacity": "100"
+    "seat_capacity": "100",
+    "number": "KA32F3635"
   },
   "KA32H3635": {
     "route": "R3",
     "driver": "asff",
     "contact": "1234567890",
-    "seat_capacity": "1234"
+    "seat_capacity": "1234",
+    "number": "KA32H3635"
   },
   "KA32V2222": {
     "route": "E2",
     "driver": "QQQQ",
     "contact": "1234567890",
-    "seat_capacity": "222"
+    "seat_capacity": "222",
+    "number": "KA32V2222"
   },
   "KA32S3635": {
     "route": "R67",
     "driver": "XYA Kapoor",
     "contact": "1234567890",
-    "seat_capacity": "23"
+    "seat_capacity": "23",
+    "number": "KA32S3635"
   },
   "KA32I1709": {
     "route": "R53",
     "driver": "wdf",
     "contact": "333333333333",
-    "seat_capacity": "34"
+    "seat_capacity": "34",
+    "number": "KA32I1709"
   },
   "KA32A3635": {
     "route": "E2",
     "driver": "EFG Reddy",
     "contact": "1234567890",
-    "seat_capacity": "22"
+    "seat_capacity": "22",
+    "number": "KA32A3635"
   }
 }
