@@ -674,29 +674,7 @@ def reset_password():
         return jsonify({"error": "Invalid OTP or email"}), 400
     
 
-@app.route("/send_admin_email_otp", methods=["POST"])
-def send_admin_email_otp():
-    data = request.get_json()
-    email = data.get("email", "").strip()
-    if "@" not in email:
-        return jsonify({"success": False, "error": "Invalid email"}), 400
 
-    otp = str(random.randint(100000, 999999))
-    ADMIN_EMAIL_OTP_STORE[email] = otp
-
-    msg = MIMEText(f"Your OTP to confirm admin email is: {otp}")
-    msg["Subject"] = "Track Way - Confirm Admin Email"
-    msg["From"] = ADMIN_EMAIL
-    msg["To"] = email
-
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
-            smtp.starttls()
-            smtp.login(ADMIN_EMAIL, ADMIN_PASSWORD)
-            smtp.send_message(msg)
-        return jsonify({"success": True, "message": "✅ OTP sent to new email."})
-    except Exception as e:
-        return jsonify({"success": False, "error": f"Failed to send OTP: {str(e)}"}), 500
 
 @app.route("/verify_admin_email_otp", methods=["POST"])
 def verify_admin_email_otp():
