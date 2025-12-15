@@ -68,7 +68,8 @@
 
         const formData = new FormData();
         formData.append("van_id", document.getElementById("van_id").value);
-        formData.append("odometer", document.getElementById("odometer").value);
+        formData.append("departure_odometer", document.getElementById("departure_odometer").value);
+        formData.append("arrival_odometer", document.getElementById("arrival_odometer").value);
         formData.append("latitude", document.getElementById("latitude").value);
         formData.append("longitude", document.getElementById("longitude").value);
 
@@ -92,7 +93,8 @@
             messageEl.style.color = "green";
             // Clear form
             document.getElementById("van_id").value = "";
-            document.getElementById("odometer").value = "";
+            document.getElementById("departure_odometer").value = "";
+            document.getElementById("arrival_odometer").value = "";
           })
           .catch(error => {
             messageEl.textContent = "❌ Error: " + error.message;
@@ -130,8 +132,13 @@
           <label for="van_id">Enter Van ID:</label>
           <input type="text" name="van_id" id="van_id" placeholder="Enter Van ID" required />
 
-          <label for="odometer">Arrival Odometer:</label>
-          <input type="number" name="odometer" id="odometer" required />
+          <label for="departure_odometer">Departure Odometer:</label>
+          <input type="number" name="departure_odometer" id="departure_odometer" placeholder="Starting odometer reading"
+            required />
+
+          <label for="arrival_odometer">Arrival Odometer:</label>
+          <input type="number" name="arrival_odometer" id="arrival_odometer" placeholder="Ending odometer reading"
+            required />
 
           <input type="hidden" name="latitude" id="latitude">
           <input type="hidden" name="longitude" id="longitude">

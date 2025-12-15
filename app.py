@@ -81,7 +81,8 @@ def trip_logger():
 
     if request.method == 'POST':
         van_id = request.form.get('van_id')
-        odometer = request.form.get('odometer')
+        departure_odometer = request.form.get('departure_odometer')
+        arrival_odometer = request.form.get('arrival_odometer')
         latitude = float(request.form.get('latitude', 0))
         longitude = float(request.form.get('longitude', 0))
 
@@ -92,6 +93,12 @@ def trip_logger():
         # distance = haversine(latitude, longitude, GATE_LAT, GATE_LNG)
         # if distance > ALLOWED_RADIUS_METERS:
         #     return "You are not at the authorized logging location.", 403
+
+        # Calculate distance traveled
+        try:
+            distance_traveled = float(arrival_odometer) - float(departure_odometer)
+        except (ValueError, TypeError):
+            return "Invalid odometer readings.", 400
 
         van_details = vans[van_id]
         now = datetime.now()
@@ -104,12 +111,12 @@ def trip_logger():
         else:
             wb = Workbook()
             ws = wb.active
-            ws.append(["Van ID", "Van Number", "Arrival Odometer", "Arrival Time"])
+            ws.append(["Van ID", "Van Number", "Departure Odometer", "Arrival Odometer", "Distance Traveled (km)", "Arrival Time"])
         ws = wb.active
-        ws.append([van_id, van_id, odometer, now.strftime("%Y-%m-%d %H:%M:%S")])
+        ws.append([van_id, van_id, departure_odometer, arrival_odometer, distance_traveled, now.strftime("%Y-%m-%d %H:%M:%S")])
         wb.save(filename)
 
-        return f"Trip for {van_id} logged successfully."
+        return f"Trip for {van_id} logged successfully. Distance traveled: {distance_traveled} km"
 
     return render_template("trip_logger.html")
 
