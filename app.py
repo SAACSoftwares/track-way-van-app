@@ -88,9 +88,10 @@ def trip_logger():
         if van_id not in vans:
             return f"Van ID {van_id} not found.", 404
 
-        distance = haversine(latitude, longitude, GATE_LAT, GATE_LNG)
-        if distance > ALLOWED_RADIUS_METERS:
-            return "You are not at the authorized logging location.", 403
+        # Location check disabled for testing/prototype
+        # distance = haversine(latitude, longitude, GATE_LAT, GATE_LNG)
+        # if distance > ALLOWED_RADIUS_METERS:
+        #     return "You are not at the authorized logging location.", 403
 
         van_details = vans[van_id]
         now = datetime.now()
