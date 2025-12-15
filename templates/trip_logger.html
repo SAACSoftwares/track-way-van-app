@@ -1,46 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trip Logger</title>
   <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <style>
-  input[type="text"],
-  input[type="number"],
-  select {
-    border: 2px solid #000;
-    padding: 10px;
-    width: 100%;
-    border-radius: 10px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    font-size: 1rem;
-  }
+    input[type="text"],
+    input[type="number"],
+    select {
+      border: 2px solid #000;
+      padding: 10px;
+      width: 100%;
+      border-radius: 10px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-size: 1rem;
+    }
 
-  input[type="text"]:hover,
-  input[type="number"]:hover,
-  select:hover {
-    border-color: #005eff;
-    box-shadow: 0 0 5px white;
-  }
+    input[type="text"]:hover,
+    input[type="number"]:hover,
+    select:hover {
+      border-color: #005eff;
+      box-shadow: 0 0 5px white;
+    }
 
-  button {
-    padding: 12px;
-    width: 100%;
-    border: 2px solid #000;
-    border-radius: 12px;
-    background-color: #e6f0ff;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: box-shadow 0.3s ease;
-  }
+    button {
+      padding: 12px;
+      width: 100%;
+      border: 2px solid #000;
+      border-radius: 12px;
+      background-color: #e6f0ff;
+      font-size: 1rem;
+      font-weight: bold;
+      transition: box-shadow 0.3s ease;
+    }
 
-  button:hover {
-    box-shadow: 0 0 12px rgba(0, 94, 255, 0.8);
-    cursor: pointer;
-  }
-</style>
+    button:hover {
+      box-shadow: 0 0 12px rgba(0, 94, 255, 0.8);
+      cursor: pointer;
+    }
+  </style>
 
   <script>
     function getLocation() {
@@ -58,9 +59,50 @@
       }
     }
 
-    window.onload = getLocation;
+    window.onload = function () {
+      getLocation();
+
+      // Handle form submission via AJAX
+      document.getElementById("trip-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("van_id", document.getElementById("van_id").value);
+        formData.append("odometer", document.getElementById("odometer").value);
+        formData.append("latitude", document.getElementById("latitude").value);
+        formData.append("longitude", document.getElementById("longitude").value);
+
+        const messageEl = document.getElementById("trip-message");
+        messageEl.textContent = "Logging trip...";
+        messageEl.style.color = "#0066cc";
+
+        fetch("/trip_logger", {
+          method: "POST",
+          body: formData
+        })
+          .then(response => {
+            if (response.ok) {
+              return response.text();
+            } else {
+              throw new Error("Failed to log trip");
+            }
+          })
+          .then(data => {
+            messageEl.textContent = "✅ " + data;
+            messageEl.style.color = "green";
+            // Clear form
+            document.getElementById("van_id").value = "";
+            document.getElementById("odometer").value = "";
+          })
+          .catch(error => {
+            messageEl.textContent = "❌ Error: " + error.message;
+            messageEl.style.color = "red";
+          });
+      });
+    };
   </script>
 </head>
+
 <body>
   <header>
     <div class="logo">🚌 Track Way</div>
@@ -84,17 +126,18 @@
       <div class="form-box">
         <p id="gps-msg">📍 Waiting for location permission...</p>
 
-        <form method="POST" id="trip-form" style="display:none;">
+        <form id="trip-form" style="display:none;">
           <label for="van_id">Enter Van ID:</label>
-          <input type="text" name="van_id" placeholder="Enter Van ID" required />
+          <input type="text" name="van_id" id="van_id" placeholder="Enter Van ID" required />
 
           <label for="odometer">Arrival Odometer:</label>
-          <input type="number" name="odometer" required />
+          <input type="number" name="odometer" id="odometer" required />
 
           <input type="hidden" name="latitude" id="latitude">
           <input type="hidden" name="longitude" id="longitude">
 
           <button type="submit">Log Trip</button>
+          <p id="trip-message" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
         </form>
       </div>
     </section>
@@ -104,4 +147,5 @@
     <p>&copy; 2025 Track Way by SAAC Softwares</p>
   </footer>
 </body>
+
 </html>
