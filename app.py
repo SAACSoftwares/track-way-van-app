@@ -377,6 +377,12 @@ from werkzeug.security import generate_password_hash
 PASSWORD_FILE = "admin_password.json"
 
 def load_admin_password():
+    # First try to get password hash from environment variable (for Render deployment)
+    env_hash = os.getenv("ADMIN_PASSWORD_HASH")
+    if env_hash:
+        return env_hash
+    
+    # Fallback to file-based storage (for local development)
     try:
         with open("admin_password.json", "r") as f:
             return json.load(f)["hashed"]
